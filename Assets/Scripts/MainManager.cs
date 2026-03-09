@@ -14,8 +14,6 @@ public class MainManager : MonoBehaviour
     public bool shopping;
     public int money;
 
-    public GameObject shop;
-
     private void Awake()
     {
         if (Instance != null)

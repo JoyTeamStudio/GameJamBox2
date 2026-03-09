@@ -24,10 +24,9 @@ public class ShopMerchant : MonoBehaviour
 
     private void Update()
     {
-        if (playerIn && Input.GetButtonDown("Vertical") && !MainManager.Instance.shopping)
+        if (playerIn && Input.GetButtonDown("Vertical") && !MainManager.Instance.shopping && GetComponent<NPCDialogue>() == null)
         {
-            if(boughtItems.Count < items.Length)
-                gameManager.OpenShop(items, boughtItems, this);
+            OpenShop();
         }
     }
 
@@ -47,5 +46,11 @@ public class ShopMerchant : MonoBehaviour
             playerIn = false;
             shopText.SetActive(playerIn);
         }
+    }
+
+    public void OpenShop()
+    {
+        if (boughtItems.Count < items.Length)
+            gameManager.OpenShop(items, boughtItems, this);
     }
 }

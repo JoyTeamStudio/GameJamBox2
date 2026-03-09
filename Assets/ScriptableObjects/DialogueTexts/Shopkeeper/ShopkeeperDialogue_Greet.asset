@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb567088341fa3c4b9b5217e379ebde5, type: 3}
+  m_Name: ShopkeeperDialogue_Greet
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueText
+  speakerName: 'Shopkeeper Tokang '
+  lines:
+  - Hey, you over there, you seem like the kind of-...
+  - Wait... I recognize that armour.
+  - You're from The Box, are you not? Long time since I've seen one of you around
+    here.
+  - Figured you'd just stopped caring about anything out here.
+  - If you're here, there must be something you're looking for, correct?
+  - 'Well, I''m not the folk to help out someone from The Box. '
+  - But I need to make business, so if you're willing to pay, I'll aid you as I can.
+  - You seem less threatening than other Box Agents, so come over here so we can
+    talk better.

@@ -35,6 +35,7 @@ public class GameManager : MonoBehaviour
     private bool typing;
     private string line;
     private Coroutine dialogueCoroutine;
+    private NPCDialogue currentNPC;
 
 
     private GameObject player;
@@ -49,7 +50,7 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape) && MainManager.Instance.shopping)
         {
-            CloseShop();
+            CloseShop(false);
         }
     }
 
@@ -119,7 +120,7 @@ public class GameManager : MonoBehaviour
         shop.SetActive(true);
     }
 
-    public void CloseShop()
+    public void CloseShop(bool finalItem)
     {
         shop.SetActive(false);
         shopConfirm.SetActive(false);
@@ -127,6 +128,11 @@ public class GameManager : MonoBehaviour
         player.GetComponent<PlayerMovement>().canMove = true;
 
         MainManager.Instance.shopping = false;
+
+        if(!finalItem)
+            currentNPC.OnShopEnd();
+        else
+            currentNPC.OnEmptyShop();
     }
 
     public void BuyShopItem(ShopItem item)
@@ -143,7 +149,7 @@ public class GameManager : MonoBehaviour
                 break;
         }
 
-        CloseShop();
+        CloseShop(item.merchant.boughtItems.Count == item.merchant.items.Length);
     }
 
     public void GetMoney(int amount)
@@ -152,8 +158,9 @@ public class GameManager : MonoBehaviour
         moneyText.text = MainManager.Instance.money.ToString();
     }
 
-    public void DisplayNextLine(DialogueText dialogueText)
+    public void DisplayNextLine(DialogueText dialogueText, NPCDialogue npc)
     {
+        currentNPC = npc;
         if(lines.Count == 0)
         {
             if (!dialogueEnded)
@@ -200,6 +207,9 @@ public class GameManager : MonoBehaviour
         lines.Clear();
         dialogueEnded = false;
         dialogueBox.SetActive(false);
+
+        Debug.Log("Dialogue ended");
+        currentNPC.OnDialogueEnd();
     }
 
     private IEnumerator TypeDialogueText(string line)

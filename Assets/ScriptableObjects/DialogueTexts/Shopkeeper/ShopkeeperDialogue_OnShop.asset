@@ -10,9 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cb567088341fa3c4b9b5217e379ebde5, type: 3}
-  m_Name: ShopkeeperDialogue
+  m_Name: ShopkeeperDialogue_OnShop
   m_EditorClassIdentifier: Assembly-CSharp::DialogueText
-  speakerName: 'Shopkeeper '
+  speakerName: 'Shopkeeper Tokang '
   lines:
-  - Sup my guy ya wanna buy some of this?
-  - Dis da real thing my man, come get it
+  - Come to buy anything?

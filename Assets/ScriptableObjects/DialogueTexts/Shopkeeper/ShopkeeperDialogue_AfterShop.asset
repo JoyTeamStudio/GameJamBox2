@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb567088341fa3c4b9b5217e379ebde5, type: 3}
+  m_Name: ShopkeeperDialogue_AfterShop
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueText
+  speakerName: 'Shopkeeper Tokang '
+  lines:
+  - So? Fancy anything? Let me know what you're looking for.
+  - Hmm...
+  - Judging by the looks on your face, it doesn't seem like I have what you're looking
+    for.
+  - You can try your luck elsewhere, but this place is dangerous, you gotta fight
+    to survive.
+  - But you already know that, don't you? I saw that you came from the entrance below.
+  - Only way you could've reached up here is going through that big guy just below
+    us.
+  - I don't know if you knocked 'em out, or if you sneaked past 'em. But regardless,
+    it ain't no easy feat.
+  - Of course that's to be expected from a Box Agent.
+  - But this place's a wasteland, don't get too confident. I've seen agents like
+    you struggle before.
+  - Well, that's enough chit-chatting, if you got any more of those shiny coins to
+    spare, I'm all ears.
+  - Else, good luck on your journey. I'll be here, ready to make business.
