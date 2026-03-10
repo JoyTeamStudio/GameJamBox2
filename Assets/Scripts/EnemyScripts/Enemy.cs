@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -26,6 +27,12 @@ public class Enemy : MonoBehaviour
     public bool attack;
     public bool hitPlayer;
 
+    public EnemyCollide wallCollider;
+    public EnemyCollide groundCollider;
+    public bool collideWall;
+    public bool collideGround;
+    public bool checkingCollide;
+
     [System.Serializable]
     public class Coins
     {
@@ -42,6 +49,7 @@ public class Enemy : MonoBehaviour
 
     public void StartEnemy()
     {
+        checkingCollide = true;
         transform.position = initialPos;
         GetComponent<PlayerHealth>().health = GetComponent<PlayerHealth>().maxHealth;
         player = FindAnyObjectByType<PlayerMovement>(FindObjectsInactive.Include).gameObject;
@@ -54,6 +62,11 @@ public class Enemy : MonoBehaviour
     private void Update()
     {
         distToPlayer = Vector3.Distance(player.transform.position, transform.position);
+
+        if(wallCollider != null)
+            collideWall = wallCollider.collided;
+        if(groundCollider != null)
+            collideGround = groundCollider.collided;
     }
 
     public void GiveMoney()
@@ -66,5 +79,17 @@ public class Enemy : MonoBehaviour
                 newCoin.GetComponent<Rigidbody2D>().AddForce(new Vector2(Random.Range(-2.0f, 2.0f), 2), ForceMode2D.Impulse);
             }
         }
+    }
+
+    public void ResetColliders()
+    {
+        StartCoroutine(ColliderCooldown());
+    }
+
+    private IEnumerator ColliderCooldown()
+    {
+        checkingCollide = false;
+        yield return new WaitForSeconds(0.2f);
+        checkingCollide = true;
     }
 }

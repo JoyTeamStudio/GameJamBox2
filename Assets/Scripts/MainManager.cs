@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class MainManager : MonoBehaviour
@@ -13,6 +14,7 @@ public class MainManager : MonoBehaviour
 
     public bool shopping;
     public int money;
+    public int hpPieces;
 
     private void Awake()
     {
@@ -30,5 +32,10 @@ public class MainManager : MonoBehaviour
     {
         if(!defeatedBosses.Contains(boss))
             defeatedBosses.Add(boss);
+    }
+
+    public void FocusCamera(Transform focus)
+    {
+        currentCam.GetComponent<CinemachineCamera>().Follow = focus;
     }
 }

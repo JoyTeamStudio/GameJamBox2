@@ -147,6 +147,12 @@ public class GameManager : MonoBehaviour
             case "battery":
                 player.GetComponent<PlayerAttack>().IncreaseMaxHealCount();
                 break;
+            case "armorPiece":
+                MainManager.Instance.hpPieces++;
+                if (MainManager.Instance.hpPieces % 3 == 0)
+                    player.GetComponent<PlayerHealth>().IncreaseHp();
+
+                break;
         }
 
         CloseShop(item.merchant.boughtItems.Count == item.merchant.items.Length);
@@ -208,7 +214,6 @@ public class GameManager : MonoBehaviour
         dialogueEnded = false;
         dialogueBox.SetActive(false);
 
-        Debug.Log("Dialogue ended");
         currentNPC.OnDialogueEnd();
     }
 
@@ -229,7 +234,7 @@ public class GameManager : MonoBehaviour
             displayText = dialogueText.text.Insert(alpha, "<color=#00000000>");
             dialogueText.text = displayText;
 
-            yield return new WaitForSeconds(0.02f);
+            yield return new WaitForSeconds(0.03f);
         }
 
         typing = false;

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class NPCDialogue : MonoBehaviour, IDialogue
@@ -13,6 +14,8 @@ public class NPCDialogue : MonoBehaviour, IDialogue
     public bool talkOnTrigger;
     private GameObject player;
     private GameManager gameManager;
+
+    public Transform dialogueFocus;
 
     private void Start()
     {
@@ -54,12 +57,19 @@ public class NPCDialogue : MonoBehaviour, IDialogue
     public void OpenDialogue()
     {
         if(dialogueIndex >= 0 && !MainManager.Instance.shopping)
+        {
+            if (dialogueFocus != null)
+                MainManager.Instance.FocusCamera(dialogueFocus);
             gameManager.DisplayNextLine(dialogue[dialogueIndex], this);
+        }
     }
 
     public void OnDialogueEnd()
     {
-        switch(dialogueName)
+        if (dialogueFocus != null)
+            MainManager.Instance.FocusCamera(player.transform);
+
+        switch (dialogueName)
         {
             case "shopGreet": dialogueIndex = -1;
                 break;
@@ -76,6 +86,10 @@ public class NPCDialogue : MonoBehaviour, IDialogue
                 if (dialogueIndex == 3)
                     dialogueIndex = 4;
 
+                break;
+            case "littlehermit" or "explorer":
+                if(dialogueIndex == 0)
+                    dialogueIndex = 1;
                 break;
         }
     }

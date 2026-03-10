@@ -18,11 +18,13 @@ public class BaseEnemy : MonoBehaviour
             case Enemy.State.Idle:
                 transform.Translate(controller.walkSpeed * 0.7f * Time.deltaTime * Vector3.right);
 
-                if (Vector3.Distance(transform.position, controller.target) < 0.25f)
+                //if (Vector3.Distance(transform.position, controller.target) < 0.25f)
+                if((!controller.collideGround || controller.collideWall) && controller.checkingCollide)
                 {
                     transform.Rotate(0, 180, 0);
                     controller.idleWalkDistance = -controller.idleWalkDistance;
-                    controller.target = new Vector3(controller.initialPos.x + controller.idleWalkDistance, transform.position.y, transform.position.z);
+                    //controller.target = new Vector3(controller.initialPos.x + controller.idleWalkDistance, transform.position.y, transform.position.z);
+                    controller.ResetColliders();                    
                 }
 
                 if(controller.distToPlayer <= controller.chaseDistance && controller.chase)

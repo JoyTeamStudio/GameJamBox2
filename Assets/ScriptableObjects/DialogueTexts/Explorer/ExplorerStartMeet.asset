@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb567088341fa3c4b9b5217e379ebde5, type: 3}
+  m_Name: ExplorerStartMeet
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueText
+  speakerName: Penjelah
+  lines:
+  - Oh, hello there. A Box Agent? In this day and age?
+  - 'A rare sight for sure, I wonder if I may encounter others? '
+  - Ah, of course, where are my manners? My name is Penjelah, I am an explorer.
+  - Well, I will now be, anyways. My brother, Tokang, runs that small shop just next
+    to us.
+  - Business hasn't been great, possibly due to our current location.
+  - Moving away is risky, however. These lands are no walk in the park.
+  - I will be going explore to find supplies so we can survive.
+  - I assume you're doing the same, even if for different reasons.
+  - I wish you the best of luck, friend. May I see you somewhere out in this vast
+    world.

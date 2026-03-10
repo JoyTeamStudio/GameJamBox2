@@ -196,4 +196,24 @@ public class PlayerHealth : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         spriteRenderer.material = original;
     }
+
+    public void IncreaseHp()
+    {
+        IncreaseHp(1);
+    }
+
+    public void IncreaseHp(int amount)
+    {
+        maxHealth += amount;
+        health = maxHealth;
+
+        foreach(Transform c in healthParent.transform)
+            c.gameObject.GetComponent<Image>().color = Color.white;
+
+        for (int i = 0; i < amount; i++)
+        {
+            GameObject newIcon = Instantiate(healthIcon, healthParent.transform.position, healthIcon.transform.rotation);
+            newIcon.transform.SetParent(healthParent.transform, false);
+        }
+    }
 }
