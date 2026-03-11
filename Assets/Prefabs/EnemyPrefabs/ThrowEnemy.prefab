@@ -398,7 +398,7 @@ MonoBehaviour:
   idleWalkDistance: 3
   distToPlayer: 0
   walkSpeed: 4
-  attackDelay: 1
+  attackDelay: 1.75
   initialPos: {x: 0, y: 0, z: 0}
   attacking: 0
   state: 0

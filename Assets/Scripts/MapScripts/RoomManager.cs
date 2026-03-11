@@ -9,6 +9,7 @@ public class RoomManager : MonoBehaviour
     public bool visitedSinceLastHeal;
 
     public Boss[] bosses;
+    public GauntletManager[] gauntlets;
 
     private void Start()
     {
@@ -24,6 +25,10 @@ public class RoomManager : MonoBehaviour
         foreach(Boss b in bosses)
             if(!b.hasEnded && b.hasStarted)
                 b.ResetBoss();
+
+        foreach (GauntletManager b in gauntlets)
+            if (!b.hasFinished && b.hasStarted)
+                b.ResetGauntlet();
     }
 
     public void EnterRoom()

@@ -26,6 +26,8 @@ public class Enemy : MonoBehaviour
     public bool chase;
     public bool attack;
     public bool hitPlayer;
+    public bool gauntlet;
+
 
     public EnemyCollide wallCollider;
     public EnemyCollide groundCollider;
@@ -71,6 +73,9 @@ public class Enemy : MonoBehaviour
 
     public void GiveMoney()
     {
+        if (gauntlet)
+            return;
+
         for(int i = 0; i < coins.Length; i++)
         {
             for (int j = 0; j < coins[i].amount; j++)
