@@ -16,7 +16,9 @@ public class BaseEnemy : MonoBehaviour
         switch (controller.state)
         {
             case Enemy.State.Idle:
-                transform.Translate(controller.walkSpeed * 0.7f * Time.deltaTime * Vector3.right);
+
+                if(controller.collideGround)
+                    transform.Translate(controller.walkSpeed * 0.7f * Time.deltaTime * Vector3.right);
 
                 //if (Vector3.Distance(transform.position, controller.target) < 0.25f)
                 if((!controller.collideGround || controller.collideWall) && controller.checkingCollide)
@@ -62,7 +64,7 @@ public class BaseEnemy : MonoBehaviour
             mult = -1;
 
         float yDist = Mathf.Abs(controller.player.transform.position.y - transform.position.y);
-        newProj.GetComponent<Rigidbody2D>().AddForce(new Vector2(controller.distToPlayer * mult * 1.25f, Mathf.Max(5, yDist * 1.5f)), ForceMode2D.Impulse);
+        newProj.GetComponent<Rigidbody2D>().AddForce(new Vector2(controller.distToPlayer * mult * 0.5f, Mathf.Max(10, yDist * 1.5f)), ForceMode2D.Impulse);
 
         if (controller.distToPlayer > controller.attackDistance)
             controller.state = Enemy.State.Chase;

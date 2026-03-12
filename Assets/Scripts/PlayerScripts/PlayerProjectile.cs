@@ -48,5 +48,11 @@ public class PlayerProjectile : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        if (collision.gameObject.CompareTag("BreakableWall"))
+        {
+            collision.gameObject.GetComponent<BreakableWall>().BreakWall();
+            Destroy(gameObject);
+        }
     }
 }

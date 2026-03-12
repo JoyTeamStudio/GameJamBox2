@@ -246,4 +246,13 @@ public class GameManager : MonoBehaviour
         dialogueText.text = line;
         typing = false;
     }
+
+    public void ObtainObject(string objName)
+    {
+        switch(objName)
+        {
+            case "dash": player.GetComponent<PlayerMovement>().hasDash = true;
+                break;
+        }
+    }
 }

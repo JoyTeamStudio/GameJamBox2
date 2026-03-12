@@ -194,6 +194,7 @@ public class PlayerMovement : MonoBehaviour
     {
         canMove = true;
         isTransitioning = false;
+        rb.gravityScale = 3;
     }
 
     public void StartTransition(RoomTransition.Direction direction)
@@ -202,6 +203,7 @@ public class PlayerMovement : MonoBehaviour
         isDashing = false;
         canMove = false;
         isTransitioning = true;
+        canDash = true;
     }
 
     public void StopMovement()

@@ -19,6 +19,7 @@ public class PlayerHealth : MonoBehaviour
     public bool respawning;
 
     public Vector3 spawnPoint;
+    public Vector3 respawnPoint;
 
     public Material flash;
     private Material original;
@@ -214,6 +215,15 @@ public class PlayerHealth : MonoBehaviour
         {
             GameObject newIcon = Instantiate(healthIcon, healthParent.transform.position, healthIcon.transform.rotation);
             newIcon.transform.SetParent(healthParent.transform, false);
+        }
+    }
+
+    public void ResetPosition()
+    {
+        if(health > 0)
+        {
+            transform.position = respawnPoint;
+            GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
         }
     }
 }

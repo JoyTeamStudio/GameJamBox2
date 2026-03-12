@@ -16,8 +16,17 @@ public class PlayerHitCollision : MonoBehaviour
             if(collision.gameObject.GetComponent<Boss>() != null || collision.gameObject.GetComponent<Enemy>().hitPlayer)
                     health.TakeDamage();
         
-
         if (collision.gameObject.CompareTag("Money"))
             collision.gameObject.GetComponent<MoneyCoin>().GiveMoney();
+
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.gameObject.CompareTag("Vines"))
+        {
+            health.TakeDamage();
+            health.ResetPosition();
+        }
     }
 }
