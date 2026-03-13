@@ -13,6 +13,9 @@ public class MainManager : MonoBehaviour
     public List<Boss> defeatedBosses;
 
     public bool shopping;
+
+    public bool hasDash;
+
     public int money;
     public int hpPieces;
 

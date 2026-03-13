@@ -31,6 +31,8 @@ public class PlayerMovement : MonoBehaviour
     public RoomTransition.Direction currentDirection;
     public bool isTransitioning;
 
+    public GameObject ghost;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -136,7 +138,14 @@ public class PlayerMovement : MonoBehaviour
         rb.linearVelocity = new Vector2(dash * multi, 0);
         //trail.emitting = true;
 
-        yield return new WaitForSeconds(0.2f);
+        int amount = 5;
+        for (int i = 0; i < amount; i++)
+        {
+            yield return new WaitForSeconds(0.2f / amount);
+            GameObject newTrail = Instantiate(ghost, transform.position, transform.rotation);
+            newTrail.GetComponent<SpriteRenderer>().sprite = GetComponent<SpriteRenderer>().sprite;
+        }
+
         //trail.emitting = false;
         rb.gravityScale = originalGravity;
         isDashing = false;

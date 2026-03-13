@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    public string defaultAnimation;
+    public Animator animator;
     public GameObject player;
     public Vector3 target;
 
@@ -51,6 +53,12 @@ public class Enemy : MonoBehaviour
 
     public void StartEnemy()
     {
+        if(GetComponent<Animator>() != null)
+        {
+            animator = GetComponent<Animator>();
+            animator.Play(defaultAnimation);
+        }
+
         checkingCollide = true;
         transform.position = initialPos;
         GetComponent<PlayerHealth>().health = GetComponent<PlayerHealth>().maxHealth;

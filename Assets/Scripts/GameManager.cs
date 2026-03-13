@@ -37,8 +37,25 @@ public class GameManager : MonoBehaviour
     private Coroutine dialogueCoroutine;
     private NPCDialogue currentNPC;
 
+    [Header("Upgrade")]
+    public CanvasGroup upgradeScreen;
+    public TextMeshProUGUI obtainText;
+    public TextMeshProUGUI upgradeNameText;
+    public TextMeshProUGUI upgradeDescText;
+    public Image upgradeImage;
+
+    [Header("Map")]
+    public GameObject mapScreen;
+    public Transform mapParent;
+    public GameObject mapRoom;
 
     private GameObject player;
+    public Animator healFactor;
+
+    [Header("Obtain Object")]
+    public GameObject obtainObject;
+    public TextMeshProUGUI obtainObjectText;
+    public Image obtainObjectImage;
 
     private void Start()
     {
@@ -48,10 +65,44 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.M) && !MainManager.Instance.shopping)
+            ToggleMap();
+
         if (Input.GetKeyDown(KeyCode.Escape) && MainManager.Instance.shopping)
         {
             CloseShop(false);
         }
+    }
+
+    public void Heal()
+    {
+        healFactor.Play("Heal");
+    }
+
+    public void ToggleMap()
+    {
+        if(!mapScreen.activeSelf)
+        {
+            foreach(Transform t in mapParent)
+                Destroy(t.gameObject);
+
+            RoomManager[] rooms = FindObjectsByType<RoomManager>(FindObjectsSortMode.None);
+
+            foreach(RoomManager room in rooms)
+            {
+                if(room.visited)
+                {
+                    GameObject coll = room.camCollider;
+                    GameObject newRoom = Instantiate(mapRoom, transform.position, transform.rotation);
+                    newRoom.transform.SetParent(mapParent, false);
+                    newRoom.transform.localScale = coll.transform.localScale * 3;
+                    newRoom.transform.localPosition = coll.transform.position * 3;
+                    newRoom.name = room.gameObject.name;
+                }
+            }
+        }
+
+        mapScreen.SetActive(!mapScreen.activeSelf);
     }
 
     public void OpenShop(ShopItemData[] items, List<int> boughtItems, ShopMerchant merchant)
@@ -142,18 +193,7 @@ public class GameManager : MonoBehaviour
 
         item.merchant.boughtItems.Add(item.itemIndex);
 
-        switch(data.itemName)
-        {
-            case "battery":
-                player.GetComponent<PlayerAttack>().IncreaseMaxHealCount();
-                break;
-            case "armorPiece":
-                MainManager.Instance.hpPieces++;
-                if (MainManager.Instance.hpPieces % 3 == 0)
-                    player.GetComponent<PlayerHealth>().IncreaseHp();
-
-                break;
-        }
+        ObtainObject(data.itemName, data.icon);
 
         CloseShop(item.merchant.boughtItems.Count == item.merchant.items.Length);
     }
@@ -247,12 +287,84 @@ public class GameManager : MonoBehaviour
         typing = false;
     }
 
-    public void ObtainObject(string objName)
+    public void ObtainObject(string objName, Sprite image)
     {
+        string obtain, upName, upDesc;
+
         switch(objName)
         {
-            case "dash": player.GetComponent<PlayerMovement>().hasDash = true;
+            case "dash": 
+                player.GetComponent<PlayerMovement>().hasDash = true;
+                MainManager.Instance.hasDash = true;
+
+                obtain = "Obtained";
+                upName = "Phase Shifter";
+                upDesc = "Increases your movement options.\nPress C to dash forward.";
+
+                DisplayUpgrade(obtain, upName, upDesc);
+                break;
+            case "battery":
+                player.GetComponent<PlayerAttack>().IncreaseMaxHealCount();
+
+                DisplayObject("Battery Slot", image);
+                break;
+            case "armorPiece":
+                MainManager.Instance.hpPieces++;
+                if (MainManager.Instance.hpPieces % 3 == 0)
+                    player.GetComponent<PlayerHealth>().IncreaseHp();
+
+                DisplayObject("Amour Piece", image);
                 break;
         }
+    }
+
+    public void DisplayObject(string objName, Sprite image)
+    {
+        obtainObjectText.text = objName;
+        //obtainObjectImage.sprite = image;
+
+        obtainObject.SetActive(true);
+
+        StartCoroutine(CloseItem());
+    }
+
+    private IEnumerator CloseItem()
+    {
+        yield return new WaitForSeconds(2);
+        obtainObject.SetActive(false);
+    }
+
+    public void DisplayUpgrade(string obtain, string upName, string upDesc)
+    {
+        StopPlayer();
+
+        obtainText.text = obtain;
+        upgradeNameText.text = upName;
+        upgradeDescText.text = upDesc;
+
+        StartCoroutine(ShowUpgrade());
+    }
+
+    private IEnumerator ShowUpgrade()
+    {
+        yield return new WaitForSeconds(1.5f);
+
+        upgradeScreen.gameObject.SetActive(true);
+        upgradeScreen.alpha = 0;
+
+        for(float i = 0; i < 1; i += 0.05f)
+        {
+            upgradeScreen.alpha = i;
+            yield return new WaitForSeconds(0.05f);
+        }
+
+        upgradeScreen.alpha = 1;
+
+        yield return new WaitForSeconds(3);
+
+        upgradeScreen.alpha = 0;
+        upgradeScreen.gameObject.SetActive(false);
+        player.GetComponent<PlayerAttack>().canAttack = true;
+        player.GetComponent<PlayerMovement>().canMove = true;
     }
 }

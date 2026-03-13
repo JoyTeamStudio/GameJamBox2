@@ -43,6 +43,7 @@ public class HealStation : MonoBehaviour
     {
         StartCoroutine(HealPlayer());
 
+        FindAnyObjectByType<GameManager>().Heal();
         RoomManager[] rooms = FindObjectsByType<RoomManager>(FindObjectsSortMode.None);
         foreach(RoomManager room in rooms)
             room.visitedSinceLastHeal = false;

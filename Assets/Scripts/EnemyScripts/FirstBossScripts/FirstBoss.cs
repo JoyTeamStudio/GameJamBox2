@@ -33,7 +33,8 @@ public class FirstBoss : MonoBehaviour
 
     private IEnumerator Jump()
     {
-        yield return new WaitForSeconds(0.25f);
+        bossManager.animator.Play("Jump");
+        yield return new WaitForSeconds(0.5f);
 
         bossManager.rb.AddForce(new Vector2(jumpXForce * GetSideMult(), jumpYForce), ForceMode2D.Impulse);
         transform.eulerAngles += new Vector3(0, 180, 0);
@@ -56,13 +57,14 @@ public class FirstBoss : MonoBehaviour
 
         for (int i = 0; i < amount; i++)
         {
+            bossManager.animator.Play("Throw");
+            yield return new WaitForSeconds(0.8f);
             GameObject newProj = Instantiate(throwProjectile, transform.position, transform.rotation);
             newProj.GetComponent<Rigidbody2D>().AddForce(new Vector2(Vector3.Distance(transform.position, bossManager.player.transform.position) * 0.8f * GetSideMult(), 25), ForceMode2D.Impulse);
-
-            yield return new WaitForSeconds(0.8f);
+            yield return new WaitForSeconds(0.2f);
         }
 
-        yield return new WaitForSeconds(0.8f);
+        yield return new WaitForSeconds(0.5f);
 
         StartCoroutine(Jump());
     }
@@ -80,12 +82,14 @@ public class FirstBoss : MonoBehaviour
 
         for (int i = 0; i < amount; i++)
         {
-            GameObject newProj = Instantiate(shootProjectile, transform.position, transform.rotation);
-            newProj.transform.Translate(new Vector3(0, -0.5f, 0));
+            bossManager.animator.Play("Shoot");
             yield return new WaitForSeconds(0.8f);
+            GameObject newProj = Instantiate(shootProjectile, transform.position, transform.rotation);
+            newProj.transform.Translate(new Vector3(0, -0.75f, 0));
+            yield return new WaitForSeconds(0.2f);
         }
 
-        yield return new WaitForSeconds(0.8f);
+        yield return new WaitForSeconds(0.5f);
 
         StartCoroutine(Jump());
     }

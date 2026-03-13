@@ -56,6 +56,7 @@ public class BaseEnemy : MonoBehaviour
     private IEnumerator Attack()
     {
         controller.attacking = true;
+        controller.animator.Play("Attack");
         yield return new WaitForSeconds(controller.attackDelay);
         GameObject newProj = Instantiate(controller.projectile, transform.position, transform.rotation);
         int mult = 1;
@@ -64,10 +65,14 @@ public class BaseEnemy : MonoBehaviour
             mult = -1;
 
         float yDist = Mathf.Abs(controller.player.transform.position.y - transform.position.y);
-        newProj.GetComponent<Rigidbody2D>().AddForce(new Vector2(controller.distToPlayer * mult * 0.5f, Mathf.Max(10, yDist * 1.5f)), ForceMode2D.Impulse);
+        newProj.GetComponent<Rigidbody2D>().AddForce(new Vector2(controller.distToPlayer * mult, Mathf.Max(10, yDist * 1.5f)), ForceMode2D.Impulse);
 
+        yield return new WaitForSeconds(0.3f);
         if (controller.distToPlayer > controller.attackDistance)
+        {
             controller.state = Enemy.State.Chase;
+            controller.animator.Play("Walk");
+        }
 
         controller.attacking = false;
     }

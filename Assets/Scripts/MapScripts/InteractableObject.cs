@@ -3,6 +3,8 @@ using UnityEngine;
 public class InteractableObject : MonoBehaviour
 {
     public string objectName;
+    public Sprite icon;
+
     public bool playerIn;
     public GameObject interactText;
 
@@ -20,7 +22,7 @@ public class InteractableObject : MonoBehaviour
     {
         if (playerIn && Input.GetButtonDown("Vertical"))
         {
-            gameManager.ObtainObject(objectName);
+            gameManager.ObtainObject(objectName,  icon);
             gameObject.SetActive(false);
         }
     }

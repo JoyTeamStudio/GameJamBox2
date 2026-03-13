@@ -377,6 +377,7 @@ MonoBehaviour:
   canHeal: 0
   respawning: 0
   spawnPoint: {x: 0, y: 0, z: 0}
+  respawnPoint: {x: 0, y: 0, z: 0}
   flash: {fileID: 2100000, guid: bca2e332b5144684faa9c33d64546574, type: 2}
   transitionFade: {fileID: 0}
 --- !u!114 &6912319401696766397
@@ -391,6 +392,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06b78b1f5f9c9ef42a41183a02a1c1e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
+  defaultAnimation: Walk
+  animator: {fileID: 0}
   player: {fileID: 0}
   target: {x: 0, y: 0, z: 0}
   projectile: {fileID: 8363231199374056581, guid: a3bf3046e7084ce4f8435a642f0fcaf6, type: 3}
@@ -406,10 +409,12 @@ MonoBehaviour:
   chase: 0
   attack: 0
   hitPlayer: 1
+  gauntlet: 0
   wallCollider: {fileID: 50267270222405145}
   groundCollider: {fileID: 243693311968319336}
   collideWall: 0
   collideGround: 0
+  checkingCollide: 0
   coins:
   - coinType: {fileID: 5189639088959063723, guid: 8a48f6ddc477c9e409fffd033d2409d9, type: 3}
     amount: 5

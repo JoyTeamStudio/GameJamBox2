@@ -14,9 +14,6 @@ public class BossTrigger : MonoBehaviour
             if(type == "boss" && !boss.hasStarted)
             {
                 boss.StartBoss();
-                foreach (Door d in boss.doors)
-                    d.TriggerDoor();
-
                 return;
             }
 

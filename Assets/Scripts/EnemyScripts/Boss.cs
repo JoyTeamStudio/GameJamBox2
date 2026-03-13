@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class Boss : MonoBehaviour
@@ -11,12 +12,17 @@ public class Boss : MonoBehaviour
 
     public Door[] doors;
     public string bossName;
+    public string bossDisplayName;
+    public TextMeshProUGUI bossNameText;
 
     private Vector3 startPos;
+    public Animator animator;
+    public GameObject deadCorpse;
 
     private void Start()
     {
         startPos = transform.position;
+        animator = GetComponent<Animator>();
     }
 
     public void ResetBoss()
@@ -41,18 +47,28 @@ public class Boss : MonoBehaviour
         player = GameObject.FindWithTag("Player");
         rb = GetComponent<Rigidbody2D>();
         health = GetComponent<PlayerHealth>();
+
+        foreach (Door d in doors)
+            d.TriggerDoor();
+
         StartCoroutine(StartDelay());
     }
 
     private IEnumerator StartDelay()
     {
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.5f);
         PlayerMovement movement = player.GetComponent<PlayerMovement>();
         movement.StopMovement();
-        yield return new WaitForSeconds(2);
-        movement.StartMovement();
+        bossNameText.text = bossDisplayName;
+        bossNameText.gameObject.SetActive(true);
 
-        if(bossName == "FirstBoss")
+        animator.Play("Scream");
+
+        yield return new WaitForSeconds(3);
+        movement.StartMovement();
+        bossNameText.gameObject.SetActive(false);
+
+        if (bossName == "FirstBoss")
             GetComponent<FirstBoss>().Attack();
     }
 
@@ -72,6 +88,19 @@ public class Boss : MonoBehaviour
         Time.timeScale = 0.25f;
         yield return new WaitForSeconds(0.5f);
         Time.timeScale = 1;
+
+        foreach(Transform t in transform)
+        {
+            t.gameObject.SetActive(true);
+            yield return new WaitForSeconds(1);
+        }
+
+        yield return new WaitForSeconds(2);
+        Instantiate(deadCorpse, transform.position, transform.rotation);
+        GetComponent<SpriteRenderer>().enabled = false;
+
+        foreach (Transform t in transform)
+            t.gameObject.SetActive(false);
 
         yield return new WaitForSeconds(2);
 

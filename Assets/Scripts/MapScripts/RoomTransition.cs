@@ -37,6 +37,10 @@ public class RoomTransition : MonoBehaviour
         movement.StartTransition(direction);
         player.SetActive(false);
 
+        GameManager manager = FindAnyObjectByType<GameManager>();
+        if (manager.mapScreen.activeSelf)
+            manager.ToggleMap();
+
         for(int i = 0; i < 255; i += 15)
         {
             transitionFade.color = new Color32(0, 0, 0, (byte)i);

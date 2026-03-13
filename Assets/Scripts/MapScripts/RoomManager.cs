@@ -1,18 +1,23 @@
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class RoomManager : MonoBehaviour
 {
     public GameObject roomCamera;
     public Transform enemies;
+    public GameObject camCollider;
 
     public bool startRoom;
     public bool visitedSinceLastHeal;
+    public bool visited;
 
     public Boss[] bosses;
     public GauntletManager[] gauntlets;
 
     private void Start()
     {
+        camCollider = roomCamera.GetComponent<CinemachineConfiner2D>().BoundingShape2D.gameObject;
+
         if(startRoom)
             EnterRoom();
     }
@@ -47,5 +52,6 @@ public class RoomManager : MonoBehaviour
         }
 
         visitedSinceLastHeal = true;
+        visited = true;
     }
 }

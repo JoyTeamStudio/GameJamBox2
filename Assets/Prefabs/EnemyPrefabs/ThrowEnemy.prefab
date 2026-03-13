@@ -199,6 +199,7 @@ GameObject:
   - component: {fileID: 3547635220927479866}
   - component: {fileID: 6957242311078323239}
   - component: {fileID: 3794296497134491632}
+  - component: {fileID: 7408840550832812115}
   m_Layer: 7
   m_Name: ThrowEnemy
   m_TagString: Enemy
@@ -216,7 +217,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 3, y: 7.75, z: 0}
-  m_LocalScale: {x: 2.5, y: 2.5, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2109470775696641668}
@@ -272,7 +273,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 4ae4a5ab7ddcb704cb951542a5e7f51c, type: 3}
+  m_Sprite: {fileID: 5851503706638229323, guid: 15f123e49c758194f8791bbb3959cf6b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -376,6 +377,7 @@ MonoBehaviour:
   canHeal: 0
   respawning: 0
   spawnPoint: {x: 0, y: 0, z: 0}
+  respawnPoint: {x: 0, y: 0, z: 0}
   flash: {fileID: 2100000, guid: bca2e332b5144684faa9c33d64546574, type: 2}
   transitionFade: {fileID: 0}
 --- !u!114 &6957242311078323239
@@ -390,6 +392,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06b78b1f5f9c9ef42a41183a02a1c1e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
+  defaultAnimation: Walk
+  animator: {fileID: 0}
   player: {fileID: 0}
   target: {x: 0, y: 0, z: 0}
   projectile: {fileID: 8363231199374056581, guid: a3bf3046e7084ce4f8435a642f0fcaf6, type: 3}
@@ -398,13 +402,14 @@ MonoBehaviour:
   idleWalkDistance: 3
   distToPlayer: 0
   walkSpeed: 4
-  attackDelay: 1.75
+  attackDelay: 1.25
   initialPos: {x: 0, y: 0, z: 0}
   attacking: 0
   state: 0
   chase: 1
   attack: 1
   hitPlayer: 1
+  gauntlet: 0
   wallCollider: {fileID: 3204801922965558500}
   groundCollider: {fileID: 5042353393977764687}
   collideWall: 0
@@ -427,3 +432,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99e9aff3077b59444b5ca143d9967995, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseEnemy
+--- !u!95 &7408840550832812115
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8686420832261788747}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: aee19cdaf3c540b4cb2113270e0a033b, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
