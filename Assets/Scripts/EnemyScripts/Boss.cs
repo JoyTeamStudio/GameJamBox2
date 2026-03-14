@@ -15,9 +15,13 @@ public class Boss : MonoBehaviour
     public string bossDisplayName;
     public TextMeshProUGUI bossNameText;
 
-    private Vector3 startPos;
+    public Vector3 startPos;
     public Animator animator;
     public GameObject deadCorpse;
+
+    public float startDelay;
+    public float timeForParticles;
+    public float timeForCorpse;
 
     private void Start()
     {
@@ -31,6 +35,13 @@ public class Boss : MonoBehaviour
         transform.position = startPos;
         transform.eulerAngles = Vector3.zero;
         ((MonoBehaviour)GetComponent(bossName)).StopAllCoroutines();
+        animator.Play("Idle");
+
+        if (bossName == "dirtGuardian")
+        {
+            GetComponent<DirtGuardian>().isMoving = false;
+            transform.localScale = new Vector3(4, 4, 1);
+        }
 
         foreach (Door d in doors)
         {
@@ -56,9 +67,12 @@ public class Boss : MonoBehaviour
 
     private IEnumerator StartDelay()
     {
-        yield return new WaitForSeconds(0.5f);
+        if (bossName == "DirtGuardian")
+            animator.Play("Awake");
+
         PlayerMovement movement = player.GetComponent<PlayerMovement>();
         movement.StopMovement();
+        yield return new WaitForSeconds(startDelay);
         bossNameText.text = bossDisplayName;
         bossNameText.gameObject.SetActive(true);
 
@@ -70,6 +84,9 @@ public class Boss : MonoBehaviour
 
         if (bossName == "FirstBoss")
             GetComponent<FirstBoss>().Attack();
+
+        if (bossName == "DirtGuardian")
+            GetComponent<DirtGuardian>().StartFight();
     }
 
     public void EndFight()
@@ -84,18 +101,20 @@ public class Boss : MonoBehaviour
         MainManager.Instance.AddBoss(this);
         ((MonoBehaviour)GetComponent(bossName)).StopAllCoroutines();
         GetComponent<Collider2D>().enabled = false;
-        Destroy(rb);
+        rb.gravityScale = 0;
+        rb.linearVelocity = Vector2.zero;
         Time.timeScale = 0.25f;
         yield return new WaitForSeconds(0.5f);
         Time.timeScale = 1;
 
-        foreach(Transform t in transform)
+        yield return new WaitForSeconds(timeForParticles);
+        foreach (Transform t in transform)
         {
             t.gameObject.SetActive(true);
             yield return new WaitForSeconds(1);
         }
 
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(timeForCorpse);
         Instantiate(deadCorpse, transform.position, transform.rotation);
         GetComponent<SpriteRenderer>().enabled = false;
 
