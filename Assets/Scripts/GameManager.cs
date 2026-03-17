@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI shopConfirmPrice;
     public Image shopConfirmIcon;
     public Button shopConfirmButton;
+    public Button shopDeclineButton;
 
 
     [Header("Dialogue")]
@@ -158,8 +159,12 @@ public class GameManager : MonoBehaviour
         shopConfirmPrice.text = item.data.price.ToString();
         shopConfirmIcon.sprite = item.data.icon;
         shopConfirmButton.Select();
+
         shopConfirmButton.onClick.RemoveAllListeners();
         shopConfirmButton.onClick.AddListener(delegate { BuyShopItem(item); });
+
+        shopDeclineButton.onClick.RemoveAllListeners();
+        shopDeclineButton.onClick.AddListener(delegate { CancelShop(); });
 
         shopConfirm.SetActive(true);
     }
@@ -303,10 +308,24 @@ public class GameManager : MonoBehaviour
 
                 DisplayUpgrade(obtain, upName, upDesc);
                 break;
+            case "doubleJump":
+                player.GetComponent<PlayerMovement>().hasDoubleJump = true;
+                MainManager.Instance.hasDoubleJump = true;
+
+                obtain = "Obtained";
+                upName = "Boot Module";
+                upDesc = "Increases your maximum height.\nPress SPACE in the air to double jump.";
+
+                DisplayUpgrade(obtain, upName, upDesc);
+                break;
             case "battery":
                 player.GetComponent<PlayerAttack>().IncreaseMaxHealCount();
 
                 DisplayObject("Battery Slot", image);
+                break;
+            case "mineral":
+                MainManager.Instance.minerals++;
+                DisplayObject("Mineral", image);
                 break;
             case "armorPiece":
                 MainManager.Instance.hpPieces++;
@@ -366,5 +385,45 @@ public class GameManager : MonoBehaviour
         upgradeScreen.gameObject.SetActive(false);
         player.GetComponent<PlayerAttack>().canAttack = true;
         player.GetComponent<PlayerMovement>().canMove = true;
+    }
+
+    public void UpgradeWeaponPopUp(HealStation station)
+    {
+        StopPlayer();
+
+        shopConfirmText.text = "Give Mineral?";
+        shopConfirmPrice.text = "1";
+        //shopConfirmIcon.sprite = item.data.icon;
+        shopConfirmButton.Select();
+
+        shopConfirmButton.onClick.RemoveAllListeners();
+        shopConfirmButton.onClick.AddListener(delegate { UpgradeWeapon(station); });
+
+        shopDeclineButton.onClick.RemoveAllListeners();
+        shopDeclineButton.onClick.AddListener(delegate { CancelUpgrade(); });
+
+        shopConfirm.SetActive(true);
+    }
+
+    public void CancelUpgrade()
+    {
+        shopConfirm.SetActive(false);
+        player.GetComponent<PlayerAttack>().canAttack = true;
+        player.GetComponent<PlayerMovement>().canMove = true;
+    }
+
+    public void UpgradeWeapon(HealStation station)
+    {
+        if(MainManager.Instance.minerals > 0)
+        {
+            station.used = true;
+            MainManager.Instance.minerals--;
+            MainManager.Instance.weaponLevel++;
+            shopConfirm.SetActive(false);
+            player.GetComponent<PlayerAttack>().canAttack = true;
+            player.GetComponent<PlayerMovement>().canMove = true;
+
+            DisplayObject("Weapon Upgraded", null);
+        }
     }
 }

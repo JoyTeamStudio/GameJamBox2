@@ -23,9 +23,13 @@ public class Boss : MonoBehaviour
     public float timeForParticles;
     public float timeForCorpse;
 
-    private void Start()
+    private void Awake()
     {
         startPos = transform.position;
+    }
+
+    private void Start()
+    {
         animator = GetComponent<Animator>();
     }
 
@@ -37,10 +41,10 @@ public class Boss : MonoBehaviour
         ((MonoBehaviour)GetComponent(bossName)).StopAllCoroutines();
         animator.Play("Idle");
 
-        if (bossName == "dirtGuardian")
+        if (bossName == "DirtGuardian")
         {
             GetComponent<DirtGuardian>().isMoving = false;
-            transform.localScale = new Vector3(4, 4, 1);
+            transform.localScale = GetComponent<DirtGuardian>().originalScale;
         }
 
         foreach (Door d in doors)
@@ -51,7 +55,7 @@ public class Boss : MonoBehaviour
         health.health = health.maxHealth;
     }
 
-    public void StartBoss()
+    public void StartBoss(bool triggerDoors)
     {
         hasStarted = true;
         hasEnded = false;
@@ -59,8 +63,11 @@ public class Boss : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         health = GetComponent<PlayerHealth>();
 
-        foreach (Door d in doors)
-            d.TriggerDoor();
+        if(triggerDoors)
+        {
+            foreach (Door d in doors)
+                d.TriggerDoor();
+        }
 
         StartCoroutine(StartDelay());
     }
@@ -68,7 +75,16 @@ public class Boss : MonoBehaviour
     private IEnumerator StartDelay()
     {
         if (bossName == "DirtGuardian")
-            animator.Play("Awake");
+        {
+            DirtGuardian d = GetComponent<DirtGuardian>();
+
+            if(!d.remnant)
+                animator.Play("Awake");
+            else
+            {
+                d.StartFight();
+            }
+        }
 
         PlayerMovement movement = player.GetComponent<PlayerMovement>();
         movement.StopMovement();
@@ -86,7 +102,17 @@ public class Boss : MonoBehaviour
             GetComponent<FirstBoss>().Attack();
 
         if (bossName == "DirtGuardian")
-            GetComponent<DirtGuardian>().StartFight();
+        {
+            DirtGuardian d = GetComponent<DirtGuardian>();
+
+            if (!d.remnant)
+                d.StartFight();
+            else
+            {
+                GetComponent<Collider2D>().enabled = true;
+                d.StartCoroutine(d.Dive());
+            }
+        }
     }
 
     public void EndFight()
@@ -107,23 +133,32 @@ public class Boss : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         Time.timeScale = 1;
 
-        yield return new WaitForSeconds(timeForParticles);
-        foreach (Transform t in transform)
+        bool end = true;
+
+        if(GetComponent<DirtGuardian>() != null && GetComponent<DirtGuardian>().remnant)
+            end = false;
+
+        if (end)
         {
-            t.gameObject.SetActive(true);
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(timeForParticles);
+            foreach (Transform t in transform)
+            {
+                t.gameObject.SetActive(true);
+                yield return new WaitForSeconds(1);
+            }
+
+            yield return new WaitForSeconds(timeForCorpse);
+            Instantiate(deadCorpse, transform.position, transform.rotation);
+            GetComponent<SpriteRenderer>().enabled = false;
+
+            foreach (Transform t in transform)
+                t.gameObject.SetActive(false);
+
+            yield return new WaitForSeconds(2);
+
+            foreach (Door d in doors)
+                d.TriggerDoor();
         }
 
-        yield return new WaitForSeconds(timeForCorpse);
-        Instantiate(deadCorpse, transform.position, transform.rotation);
-        GetComponent<SpriteRenderer>().enabled = false;
-
-        foreach (Transform t in transform)
-            t.gameObject.SetActive(false);
-
-        yield return new WaitForSeconds(2);
-
-        foreach (Door d in doors)
-            d.TriggerDoor();
     }
 }

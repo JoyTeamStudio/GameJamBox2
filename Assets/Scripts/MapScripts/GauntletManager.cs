@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,13 +6,18 @@ public class GauntletManager : MonoBehaviour
 {
     public bool hasStarted;
     public bool hasFinished;
+    private bool spawning;
     public int currentWave;
     private List<GameObject> currentEnemies;
+    private List<GameObject> currentParticles;
 
     public Door[] doors;
+    public GameObject particles;
+    public Transform particlesY;
 
     public void StartGauntlet()
     {
+        spawning = false;
         hasStarted = true;
         currentWave = 0;
         ShowWave(currentWave, true);
@@ -41,7 +47,7 @@ public class GauntletManager : MonoBehaviour
 
     private void Update()
     {
-        if(hasStarted && !hasFinished && IsWaveOver())
+        if(hasStarted && !hasFinished && !spawning && IsWaveOver())
         {
             currentWave++;
             ShowWave(currentWave, true);
@@ -51,6 +57,7 @@ public class GauntletManager : MonoBehaviour
     public void ShowWave(int wave, bool show)
     {
         currentEnemies = new List<GameObject>();
+        currentParticles = new List<GameObject>();
 
         if(wave >= transform.childCount)
         {
@@ -58,17 +65,21 @@ public class GauntletManager : MonoBehaviour
             return;
         }
 
+        spawning = show;
+
         foreach (Transform t in transform.GetChild(wave))
         {
-            t.gameObject.SetActive(show);
-
             if (show)
             {
-                t.gameObject.GetComponent<Enemy>().StartEnemy();
-                t.gameObject.GetComponent<Enemy>().gauntlet = true;
+                GameObject newPart = Instantiate(particles, new Vector3(t.position.x, particlesY.position.y, particles.transform.position.z), particles.transform.rotation);
+                currentParticles.Add(newPart);
                 currentEnemies.Add(t.gameObject);
-            }
+            }else
+                t.gameObject.SetActive(false);
         }
+
+        if(show)
+            StartCoroutine(ShowEnemies());
     }
 
     public bool IsWaveOver()
@@ -78,5 +89,25 @@ public class GauntletManager : MonoBehaviour
                 return false;
 
         return true;
+    }
+
+    private IEnumerator ShowEnemies()
+    {
+        yield return new WaitForSeconds(1.1f);
+
+        foreach(GameObject enemy in currentEnemies)
+        {
+            enemy.SetActive(true);
+
+            enemy.GetComponent<Enemy>().StartEnemy();
+            enemy.GetComponent<Enemy>().gauntlet = true;
+        }
+
+        foreach(GameObject part in currentParticles)
+            Destroy(part);
+
+        currentParticles.Clear();
+
+        spawning = false;
     }
 }

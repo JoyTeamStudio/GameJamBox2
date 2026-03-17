@@ -23,11 +23,19 @@ public class DirtGuardian : MonoBehaviour
 
     public GameObject projectile;
     private bool dead;
+    public Vector3 originalScale;
+
+    public bool remnant;
+    public Vector3 startRemnant;
+    public Boss[] otherRemnants;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         bossManager = GetComponent<Boss>();
+
+        if (remnant)
+            transform.localPosition = startRemnant;
     }
 
     private void Update()
@@ -36,7 +44,10 @@ public class DirtGuardian : MonoBehaviour
         {
             transform.Translate(speed * Time.deltaTime * moveDir);
 
-            if(Vector3.Distance(transform.position, target) < 0.5f)
+            if (transform.position.y < bossManager.startPos.y - 6 || transform.position.y > bossManager.startPos.y + 16)
+                transform.position = target;
+
+            if(Vector3.Distance(transform.position, target) < 1)
             {
                 transform.position = target;
                 isMoving = false;
@@ -97,8 +108,15 @@ public class DirtGuardian : MonoBehaviour
     {
         dead = false;
         lastAttack = -1;
-        GetComponent<Collider2D>().enabled = true;
-        StartCoroutine(Dive());
+        originalScale = transform.localScale;
+
+        if (!remnant)
+        {
+            GetComponent<Collider2D>().enabled = true;
+            StartCoroutine(Dive());
+        }
+        else
+            StartCoroutine(DiveUp(false));
     }
 
     public IEnumerator Dive()
@@ -118,10 +136,15 @@ public class DirtGuardian : MonoBehaviour
 
     public void Attack()
     {
+        int range = 3;
+
+        if (remnant)
+            range = 2;
+
         int random;
         do
         {
-            random = Random.Range(0, 3);
+            random = Random.Range(0, range);
         } while (random == lastAttack);
 
         lastAttack = random;
@@ -129,7 +152,7 @@ public class DirtGuardian : MonoBehaviour
         switch(random)
         {
             case 0:
-                StartCoroutine(DiveUp());
+                StartCoroutine(DiveUp(true));
                 break;
             case 1:
                 dashCount = 8;
@@ -141,31 +164,44 @@ public class DirtGuardian : MonoBehaviour
         }
     }
 
-    public IEnumerator DiveUp()
+    public IEnumerator DiveUp(bool attack)
     {
         bossManager.animator.Play("Dive");
-        int random = Random.Range(0, 2);
-        int mult = 1;
-        transform.eulerAngles = Vector3.zero;
+        currentAttack = "";
 
-        if (random == 0)
+        if(attack)
         {
-            mult = -1;
-            transform.eulerAngles = new Vector3(0, 180, 0);
+            int random = Random.Range(0, 2);
+            int mult = 1;
+            transform.eulerAngles = Vector3.zero;
+
+            if (random == 0)
+            {
+                mult = -1;
+                transform.eulerAngles = new Vector3(0, 180, 0);
+            }
+
+            transform.position = new Vector3(bossManager.startPos.x + (14 * mult), transform.position.y, transform.position.z);
+
+            currentAttack = "diveUp";
         }
 
-        transform.position = new Vector3(bossManager.startPos.x + (14 * mult), transform.position.y, transform.position.z);
+        float timer = 0.75f;
+
+        if (remnant)
+            timer = 1.5f;
+
         GameObject newParticles = Instantiate(particles, transform.position, transform.rotation);
         newParticles.transform.position = new Vector3(transform.position.x, bossManager.startPos.y + downParticleSpawn, transform.position.z);
-        Destroy(newParticles, 0.75f);
+        newParticles.GetComponent<ParticleSystem>().gravityModifier = -1;
+        Destroy(newParticles, timer);
 
-        yield return new WaitForSeconds(0.75f);
+        yield return new WaitForSeconds(timer);
 
         isMoving = true;
         target = transform.position + new Vector3(0, 5, 0);
         moveDir = Vector3.up;
         speed = diveSpeed;
-        currentAttack = "diveUp";
     }
 
     public IEnumerator DashUpAndDown()
@@ -179,7 +215,7 @@ public class DirtGuardian : MonoBehaviour
         float speedMult = 1;
         float particleTime = 0.75f;
 
-        if (bossManager.health.health < bossManager.health.maxHealth / 2)
+        if (!remnant && bossManager.health.health < bossManager.health.maxHealth / 2)
         {
             speedMult = 1.4f;
             particleTime = 0.5f;
@@ -193,13 +229,13 @@ public class DirtGuardian : MonoBehaviour
             transform.eulerAngles = Vector3.zero;
             target = new Vector3(transform.position.x, transform.position.y + 15, transform.position.z);
             newParticles.transform.position = new Vector3(transform.position.x, bossManager.startPos.y + downParticleSpawn, transform.position.z);
+            newParticles.GetComponent<ParticleSystem>().gravityModifier = -1;
         }
         else
         {
             transform.eulerAngles = new Vector3(0, 0, 180);
             target = new Vector3(transform.position.x, transform.position.y - 15, transform.position.z);
             newParticles.transform.position = new Vector3(transform.position.x, bossManager.startPos.y + upParticleSpawn, transform.position.z);
-            newParticles.GetComponent<ParticleSystem>().gravityModifier = 1;
         }
 
         yield return new WaitForSeconds(particleTime);
@@ -257,7 +293,7 @@ public class DirtGuardian : MonoBehaviour
         yield return new WaitForSeconds(0.55f);
 
         transform.position = new Vector3(transform.position.x, bossManager.startPos.y - 5, transform.position.z);
-        transform.localScale = new Vector3(4, 4, 1);
+        transform.localScale = originalScale;
 
         yield return new WaitForSeconds(0.3f);
         GetComponent<Collider2D>().enabled = true;
@@ -282,8 +318,8 @@ public class DirtGuardian : MonoBehaviour
 
         float speedMult = 1;
 
-        if (bossManager.health.health < bossManager.health.maxHealth / 2)
-            speedMult = 1.4f;
+        if (!remnant && bossManager.health.health < bossManager.health.maxHealth / 2)
+            speedMult = 1.3f;
 
         speed = moveSpeed * speedMult;
         currentAttack = "move";
@@ -302,15 +338,27 @@ public class DirtGuardian : MonoBehaviour
 
     public IEnumerator Death()
     {
-        yield return new WaitForSeconds(0.75f);
-        currentAttack = "dead";
-        transform.eulerAngles = Vector3.zero;
-        bossManager.animator.Play("Death");
-        transform.position = bossManager.startPos - new Vector3(0, 5, 0);
-        transform.localScale = new Vector3(4, 4, 1);
-        target = bossManager.startPos;
-        moveDir = Vector3.up;
-        speed = diveSpeed;
-        isMoving = true;
+        if(!remnant)
+        {
+            yield return new WaitForSeconds(0.75f);
+            currentAttack = "dead";
+            transform.eulerAngles = Vector3.zero;
+            bossManager.animator.Play("Death");
+            transform.position = bossManager.startPos - new Vector3(0, 5, 0);
+            transform.localScale = originalScale;
+            target = bossManager.startPos;
+            moveDir = Vector3.up;
+            speed = diveSpeed;
+            isMoving = true;
+        }else
+        {
+            yield return new WaitForSeconds(0.75f);
+            for(int i = 0; i < otherRemnants.Length; i++)
+            {
+                otherRemnants[i].StartBoss(false);
+                otherRemnants[i].GetComponent<DirtGuardian>().lastAttack = i;
+            }
+        }
+
     }
 }

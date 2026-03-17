@@ -39,7 +39,8 @@ public class BaseEnemy : MonoBehaviour
                 else
                     transform.eulerAngles = new Vector3(0, 180, 0);
 
-                transform.Translate(controller.walkSpeed * 1.3f * Time.deltaTime * Vector3.right);
+                if (controller.collideGround)
+                    transform.Translate(controller.walkSpeed * 1.3f * Time.deltaTime * Vector3.right);
 
                 if (controller.distToPlayer <= controller.attackDistance && controller.attack)
                     controller.state = Enemy.State.Attack;
@@ -65,7 +66,8 @@ public class BaseEnemy : MonoBehaviour
             mult = -1;
 
         float yDist = Mathf.Abs(controller.player.transform.position.y - transform.position.y);
-        newProj.GetComponent<Rigidbody2D>().AddForce(new Vector2(controller.distToPlayer * mult, Mathf.Max(10, yDist * 1.5f)), ForceMode2D.Impulse);
+        float xDist = Mathf.Abs(controller.player.transform.position.x - transform.position.x);
+        newProj.GetComponent<Rigidbody2D>().AddForce(new Vector2(Mathf.Max(7, xDist * 1.25f) * mult, Mathf.Max(10, yDist * 1.5f)), ForceMode2D.Impulse);
 
         yield return new WaitForSeconds(0.3f);
         if (controller.distToPlayer > controller.attackDistance)

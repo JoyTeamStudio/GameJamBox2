@@ -13,7 +13,7 @@ public class BossTrigger : MonoBehaviour
         {
             if(type == "boss" && !boss.hasStarted)
             {
-                boss.StartBoss();
+                boss.StartBoss(true);
                 return;
             }
 

@@ -15,6 +15,9 @@ public class PlayerProjectile : MonoBehaviour
     void Start()
     {
         counter = 0;
+
+        if (!enemyProjectile)
+            damage += (3 * MainManager.Instance.weaponLevel);
     }
 
     // Update is called once per frame

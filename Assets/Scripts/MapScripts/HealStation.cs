@@ -7,8 +7,13 @@ public class HealStation : MonoBehaviour
     private PlayerHealth health;
     public GameObject recoverText;
 
+    public enum StationType { Heal, Upgrade}
+    public StationType type;
+    public bool used;
+
     private void Start()
     {
+        used = false;
         recoverText.SetActive(false);
     }
 
@@ -16,13 +21,17 @@ public class HealStation : MonoBehaviour
     {
         if(playerIn && Input.GetButtonDown("Vertical"))
         {
-            Heal();
+            if(type == StationType.Heal)
+                Heal();
+
+            if (type == StationType.Upgrade && !used)
+                FindAnyObjectByType<GameManager>().UpgradeWeaponPopUp(this);
         }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.gameObject.CompareTag("Player"))
+        if(collision.gameObject.CompareTag("Player") && !used)
         {
             health = collision.gameObject.GetComponent<PlayerHealth>();
             playerIn = true;

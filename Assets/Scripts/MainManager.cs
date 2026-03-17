@@ -15,9 +15,13 @@ public class MainManager : MonoBehaviour
     public bool shopping;
 
     public bool hasDash;
+    public bool hasDoubleJump;
 
     public int money;
     public int hpPieces;
+    public int minerals;
+    public int keys;
+    public int weaponLevel;
 
     private void Awake()
     {
