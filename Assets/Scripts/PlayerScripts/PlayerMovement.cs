@@ -203,6 +203,7 @@ public class PlayerMovement : MonoBehaviour
     {
         canMove = true;
         isTransitioning = false;
+        GetComponent<PlayerAttack>().canAttack = true;
         rb.gravityScale = 3;
     }
 
@@ -213,6 +214,7 @@ public class PlayerMovement : MonoBehaviour
         canMove = false;
         isTransitioning = true;
         canDash = true;
+        GetComponent<PlayerAttack>().canAttack = false;
     }
 
     public void StopMovement()

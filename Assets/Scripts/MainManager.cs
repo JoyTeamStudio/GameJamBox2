@@ -17,6 +17,8 @@ public class MainManager : MonoBehaviour
     public bool hasDash;
     public bool hasDoubleJump;
 
+    public bool obtainedFinalItem;
+
     public int money;
     public int hpPieces;
     public int minerals;

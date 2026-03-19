@@ -6,11 +6,16 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    public bool startedGame;
+    public bool endedGame;
+
     public TextMeshProUGUI moneyText;
 
     public GameObject shop;
     public Transform shopItemsParent;
     public GameObject shopItemPrefab;
+
+    public Image fade;
 
     [Header("Shop Item Details")]
     public TextMeshProUGUI shopItemName;
@@ -37,6 +42,7 @@ public class GameManager : MonoBehaviour
     private string line;
     private Coroutine dialogueCoroutine;
     private NPCDialogue currentNPC;
+    private DialogueText currentDialogueText;
 
     [Header("Upgrade")]
     public CanvasGroup upgradeScreen;
@@ -58,21 +64,102 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI obtainObjectText;
     public Image obtainObjectImage;
 
+    public GameObject endBoxDialogue;
+
+    [Header("Start Game")]
+    public Door startDoor;
+    public GameObject finalInteract;
+    public TextMeshProUGUI finalText;
+    public DialogueText startText;
+    public DialogueText endText;
+
     private void Start()
     {
         player = GameObject.FindWithTag("Player");
         moneyText.text = MainManager.Instance.money.ToString();
+
+        StartGame();
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.M) && !MainManager.Instance.shopping)
+        if (startedGame  && !endedGame && Input.GetKeyDown(KeyCode.M) && !MainManager.Instance.shopping)
             ToggleMap();
 
         if (Input.GetKeyDown(KeyCode.Escape) && MainManager.Instance.shopping)
         {
             CloseShop(false);
         }
+    }
+
+    private void StartGame()
+    {
+        StartCoroutine(StartMessage());
+    }
+
+    private IEnumerator StartMessage()
+    {
+        fade.color = new Color32(0, 0, 0, 255);
+
+        yield return new WaitForSeconds(1);
+
+        DisplayNextLine(startText, null, finalText, true);
+    }
+
+    private IEnumerator StartGameCoroutine()
+    {
+        finalText.text = "";
+
+        yield return new WaitForSeconds(1);
+
+        for (int i = 255; i > 0; i -= 15)
+        {
+            fade.color = new Color32(0, 0, 0, (byte)i);
+            yield return new WaitForSeconds(0.015f);
+        }
+        fade.color = new Color32(0, 0, 0, 0);
+
+        yield return new WaitForSeconds(0.75f);
+
+        startedGame = true;
+        player.GetComponent<PlayerMovement>().StartTransition(RoomTransition.Direction.Right);
+        yield return new WaitForSeconds(1);
+        player.GetComponent<PlayerMovement>().EndTransition();
+        StopPlayer();
+        yield return new WaitForSeconds(0.5f);
+        startDoor.TriggerDoor();
+        yield return new WaitForSeconds(1);
+        StartPlayer();
+    }
+
+    private IEnumerator EnterBox()
+    {
+        endedGame = true;
+        player.transform.eulerAngles = new Vector3(0, 180, 0);
+        StopPlayer();
+
+        yield return new WaitForSeconds(1);
+        startDoor.TriggerDoor();
+
+        yield return new WaitForSeconds(1.5f);
+        player.GetComponent<PlayerMovement>().StartTransition(RoomTransition.Direction.Left);
+        yield return new WaitForSeconds(2);
+        player.GetComponent<PlayerMovement>().EndTransition();
+        StopPlayer();
+        startDoor.TriggerDoor();
+
+        yield return new WaitForSeconds(1);
+
+        for (int i = 0; i < 255; i += 15)
+        {
+            fade.color = new Color32(0, 0, 0, (byte)i);
+            yield return new WaitForSeconds(0.015f);
+        }
+        fade.color = new Color32(0, 0, 0, 255);
+
+        yield return new WaitForSeconds(1.3f);
+
+        DisplayNextLine(endText, null, finalText, true);
     }
 
     public void Heal()
@@ -132,9 +219,12 @@ public class GameManager : MonoBehaviour
 
     private void StopPlayer()
     {
-        player.GetComponent<PlayerAttack>().canAttack = false;
-        player.GetComponent<PlayerMovement>().canMove = false;
-        player.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
+        player.GetComponent<PlayerMovement>().StopMovement();
+    }
+
+    private void StartPlayer()
+    {
+        player.GetComponent<PlayerMovement>().StartMovement();
     }
 
     private IEnumerator SelectShopItem()
@@ -209,13 +299,14 @@ public class GameManager : MonoBehaviour
         moneyText.text = MainManager.Instance.money.ToString();
     }
 
-    public void DisplayNextLine(DialogueText dialogueText, NPCDialogue npc)
+    public void DisplayNextLine(DialogueText dialogueText, NPCDialogue npc, TextMeshProUGUI textBox, bool automatic)
     {
+        currentDialogueText = dialogueText;
         currentNPC = npc;
         if(lines.Count == 0)
         {
             if (!dialogueEnded)
-                StartDialogue(dialogueText);
+                StartDialogue(dialogueText, textBox == this.dialogueText);
             else if (dialogueEnded && !typing)
             {
                 EndDialogue();
@@ -226,7 +317,7 @@ public class GameManager : MonoBehaviour
         if(!typing)
         {
             line = lines.Dequeue();
-            dialogueCoroutine = StartCoroutine(TypeDialogueText(line));
+            dialogueCoroutine = StartCoroutine(TypeDialogueText(line, textBox, automatic));
         }else
         {
             FinishLineEarly();
@@ -238,11 +329,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void StartDialogue(DialogueText dialogueText)
+    private void StartDialogue(DialogueText dialogueText, bool dialogue)
     {
         StopPlayer();
 
-        dialogueBox.SetActive(true);
+        dialogueBox.SetActive(dialogue);
         dialogueName.text = dialogueText.speakerName;
 
         for (int i = 0; i < dialogueText.lines.Length; i++)
@@ -253,20 +344,30 @@ public class GameManager : MonoBehaviour
 
     private void EndDialogue()
     {
-        player.GetComponent<PlayerAttack>().canAttack = true;
-        player.GetComponent<PlayerMovement>().canMove = true;
+        if(startedGame && !endedGame)
+        {
+            player.GetComponent<PlayerAttack>().canAttack = true;
+            player.GetComponent<PlayerMovement>().canMove = true;
+        }
+
         lines.Clear();
         dialogueEnded = false;
         dialogueBox.SetActive(false);
 
-        currentNPC.OnDialogueEnd();
+        if(currentNPC != null)
+            currentNPC.OnDialogueEnd();
+
+        if(!startedGame)
+        {
+            StartCoroutine(StartGameCoroutine());
+        }
     }
 
-    private IEnumerator TypeDialogueText(string line)
+    private IEnumerator TypeDialogueText(string line, TextMeshProUGUI text, bool automatic)
     {
         typing = true;
 
-        dialogueText.text = "";
+        text.text = "";
         string originalText = line;
         string displayText = "";
         int alpha = 0;
@@ -274,15 +375,21 @@ public class GameManager : MonoBehaviour
         foreach (char c in line.ToCharArray())
         {
             alpha++;
-            dialogueText.text = originalText;
+            text.text = originalText;
 
-            displayText = dialogueText.text.Insert(alpha, "<color=#00000000>");
-            dialogueText.text = displayText;
+            displayText = text.text.Insert(alpha, "<color=#00000000>");
+            text.text = displayText;
 
             yield return new WaitForSeconds(0.03f);
         }
 
         typing = false;
+
+        if(automatic)
+        {
+            yield return new WaitForSeconds(1.25f);
+            DisplayNextLine(currentDialogueText, currentNPC, text, automatic);
+        }
     }
 
     private void FinishLineEarly()
@@ -318,6 +425,17 @@ public class GameManager : MonoBehaviour
 
                 DisplayUpgrade(obtain, upName, upDesc);
                 break;
+            case "finalitem":
+                MainManager.Instance.obtainedFinalItem = true;
+
+                obtain = "Obtained";
+                upName = "The Item";
+                upDesc = "The item that The Box has been looking for.\nThey would be pleased to have this.";
+
+                endBoxDialogue.SetActive(true);
+                finalInteract.SetActive(true);
+                DisplayUpgrade(obtain, upName, upDesc);
+                break;
             case "battery":
                 player.GetComponent<PlayerAttack>().IncreaseMaxHealCount();
 
@@ -333,6 +451,9 @@ public class GameManager : MonoBehaviour
                     player.GetComponent<PlayerHealth>().IncreaseHp();
 
                 DisplayObject("Amour Piece", image);
+                break;
+            case "endGame":
+                StartCoroutine(EnterBox());
                 break;
         }
     }

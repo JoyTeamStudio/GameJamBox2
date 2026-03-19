@@ -60,7 +60,7 @@ public class NPCDialogue : MonoBehaviour, IDialogue
         {
             if (dialogueFocus != null)
                 MainManager.Instance.FocusCamera(dialogueFocus);
-            gameManager.DisplayNextLine(dialogue[dialogueIndex], this);
+            gameManager.DisplayNextLine(dialogue[dialogueIndex], this, gameManager.dialogueText, false);
         }
     }
 
@@ -71,7 +71,7 @@ public class NPCDialogue : MonoBehaviour, IDialogue
 
         switch (dialogueName)
         {
-            case "shopGreet": dialogueIndex = -1;
+            case "shopGreet" or "endBox": dialogueIndex = -1;
                 break;
             case "shopkeeper":
                 Debug.Log("shopkeeper");
