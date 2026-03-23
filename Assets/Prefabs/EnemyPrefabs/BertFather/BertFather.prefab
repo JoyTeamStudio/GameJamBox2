@@ -241,6 +241,10 @@ MonoBehaviour:
   jumpYForce: 23.4
   throwProjectile: {fileID: 8363231199374056581, guid: a5181b696325216439e49da88b5fd9f3, type: 3}
   shootProjectile: {fileID: 8363231199374056581, guid: 38f13639183ea9b479c1aca96d603cb2, type: 3}
+  throwTime: 0.8
+  shootTime: 0.8
+  startAmount: 1
+  jumpTime: 0.5
 --- !u!95 &4786018336882264714
 Animator:
   serializedVersion: 7

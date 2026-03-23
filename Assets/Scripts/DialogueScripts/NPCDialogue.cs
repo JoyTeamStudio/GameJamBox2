@@ -87,9 +87,16 @@ public class NPCDialogue : MonoBehaviour, IDialogue
                     dialogueIndex = 4;
 
                 break;
-            case "littlehermit" or "explorer":
+            case "littlehermit":
                 if(dialogueIndex == 0)
                     dialogueIndex = 1;
+                break;
+            case "explorer":
+                if(dialogueIndex == 0)
+                {
+                    gameManager.ObtainObject("map", null);
+                    dialogueIndex = 1;
+                }
                 break;
         }
     }

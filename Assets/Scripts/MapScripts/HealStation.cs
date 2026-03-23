@@ -6,8 +6,9 @@ public class HealStation : MonoBehaviour
     public bool playerIn;
     private PlayerHealth health;
     public GameObject recoverText;
+    public Door door;
 
-    public enum StationType { Heal, Upgrade}
+    public enum StationType { Heal, Upgrade, Key}
     public StationType type;
     public bool used;
 
@@ -26,6 +27,9 @@ public class HealStation : MonoBehaviour
 
             if (type == StationType.Upgrade && !used)
                 FindAnyObjectByType<GameManager>().UpgradeWeaponPopUp(this);
+
+            if (type == StationType.Key && !used)
+                FindAnyObjectByType<GameManager>().UseKey(this);
         }
     }
 

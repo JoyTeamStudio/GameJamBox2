@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    public bool paused;
     public bool startedGame;
     public bool endedGame;
 
@@ -14,6 +15,8 @@ public class GameManager : MonoBehaviour
     public GameObject shop;
     public Transform shopItemsParent;
     public GameObject shopItemPrefab;
+
+    public Transform healthPieces;
 
     public Image fade;
 
@@ -73,6 +76,20 @@ public class GameManager : MonoBehaviour
     public DialogueText startText;
     public DialogueText endText;
 
+    private float timeBeforePause;
+    [Header("Pause Menu")]
+    public GameObject mainScreen;
+    public GameObject pauseScreen;
+    public Transform armors;
+    public Transform slots;
+
+    public Image dashImage;
+    public Image doubleJumpImage;
+    public Image finalItemImage;
+    public Image keyImage;
+    public Image mineralImage;
+
+
     private void Start()
     {
         player = GameObject.FindWithTag("Player");
@@ -83,12 +100,73 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (startedGame  && !endedGame && Input.GetKeyDown(KeyCode.M) && !MainManager.Instance.shopping)
+        if (MainManager.Instance.hasMap && startedGame && !endedGame && Input.GetKeyDown(KeyCode.M) && !MainManager.Instance.shopping)
             ToggleMap();
+
+        if (startedGame && !endedGame && Input.GetKeyDown(KeyCode.Escape) && !MainManager.Instance.shopping)
+            TogglePause();
 
         if (Input.GetKeyDown(KeyCode.Escape) && MainManager.Instance.shopping)
         {
             CloseShop(false);
+        }
+    }
+
+    public void TogglePause()
+    {
+        paused = !paused;
+
+        mainScreen.SetActive(!paused);
+        pauseScreen.SetActive(paused);
+        Cursor.visible = paused;
+
+        if (paused)
+        {
+            timeBeforePause = Time.timeScale;
+            Time.timeScale = 0;
+            Cursor.lockState = CursorLockMode.None;
+
+            int extraHearts = MainManager.Instance.hpPieces / 3;
+            int count = 0;
+            for(int i = 0; i < armors.childCount; i++)
+            {
+                for (int j = 0; j < armors.GetChild(i).childCount; j++)
+                {
+                    if(MainManager.Instance.hpPieces > count)
+                        armors.GetChild(i).GetChild(j).gameObject.GetComponent<Image>().color = Color.white;
+                    else
+                        armors.GetChild(i).GetChild(j).gameObject.GetComponent<Image>().color = Color.black;
+                
+                    count++;
+                }
+
+                if (extraHearts > i)
+                    armors.GetChild(i).gameObject.GetComponent<Image>().color = Color.white;
+                else
+                    armors.GetChild(i).gameObject.GetComponent<Image>().color = Color.black;
+            }
+
+            for (int i = 0; i < slots.childCount; i++)
+            {
+                if (MainManager.Instance.slots > i)
+                    slots.GetChild(i).gameObject.GetComponent<Image>().color = Color.white;
+                else
+                    slots.GetChild(i).gameObject.GetComponent<Image>().color = Color.black;
+            }
+
+            dashImage.gameObject.SetActive(MainManager.Instance.hasDash);
+            doubleJumpImage.gameObject.SetActive(MainManager.Instance.hasDoubleJump);
+            finalItemImage.gameObject.SetActive(MainManager.Instance.obtainedFinalItem);
+
+            keyImage.gameObject.SetActive(MainManager.Instance.keys > 0);
+            mineralImage.gameObject.SetActive(MainManager.Instance.minerals > 0);
+            keyImage.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = MainManager.Instance.keys.ToString();
+            mineralImage.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = MainManager.Instance.minerals.ToString();
+        }
+        else
+        {
+            Time.timeScale = timeBeforePause;
+            Cursor.lockState = CursorLockMode.Locked;
         }
     }
 
@@ -99,6 +177,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator StartMessage()
     {
+        StopPlayer();
         fade.color = new Color32(0, 0, 0, 255);
 
         yield return new WaitForSeconds(1);
@@ -183,8 +262,8 @@ public class GameManager : MonoBehaviour
                     GameObject coll = room.camCollider;
                     GameObject newRoom = Instantiate(mapRoom, transform.position, transform.rotation);
                     newRoom.transform.SetParent(mapParent, false);
-                    newRoom.transform.localScale = coll.transform.localScale * 3;
-                    newRoom.transform.localPosition = coll.transform.position * 3;
+                    newRoom.transform.localScale = coll.transform.localScale * 2.5f;
+                    newRoom.transform.localPosition = coll.transform.position * 2.5f;
                     newRoom.name = room.gameObject.name;
                 }
             }
@@ -425,6 +504,14 @@ public class GameManager : MonoBehaviour
 
                 DisplayUpgrade(obtain, upName, upDesc);
                 break;
+            case "map":
+                MainManager.Instance.hasMap = true;
+
+                obtain = "Obtained";
+                upName = "Map";
+                upDesc = "A better look at The Outside.\nPress M to open the map and see your location.";
+                DisplayUpgrade(obtain, upName, upDesc);
+                break;
             case "finalitem":
                 MainManager.Instance.obtainedFinalItem = true;
 
@@ -437,19 +524,21 @@ public class GameManager : MonoBehaviour
                 DisplayUpgrade(obtain, upName, upDesc);
                 break;
             case "battery":
+                MainManager.Instance.slots++;
                 player.GetComponent<PlayerAttack>().IncreaseMaxHealCount();
 
                 DisplayObject("Battery Slot", image);
+                break;
+            case "key":
+                MainManager.Instance.keys++;
+                DisplayObject("Key", image);
                 break;
             case "mineral":
                 MainManager.Instance.minerals++;
                 DisplayObject("Mineral", image);
                 break;
             case "armorPiece":
-                MainManager.Instance.hpPieces++;
-                if (MainManager.Instance.hpPieces % 3 == 0)
-                    player.GetComponent<PlayerHealth>().IncreaseHp();
-
+                StartCoroutine(ObtainHealthPiece());
                 DisplayObject("Amour Piece", image);
                 break;
             case "endGame":
@@ -526,6 +615,38 @@ public class GameManager : MonoBehaviour
         shopConfirm.SetActive(true);
     }
 
+    public void UseKey(HealStation station)
+    {
+        StopPlayer();
+
+        shopConfirmText.text = "Use Key?";
+        shopConfirmPrice.text = "1";
+        //shopConfirmIcon.sprite = item.data.icon;
+        shopConfirmButton.Select();
+
+        shopConfirmButton.onClick.RemoveAllListeners();
+        shopConfirmButton.onClick.AddListener(delegate { OpenDoor(station); });
+
+        shopDeclineButton.onClick.RemoveAllListeners();
+        shopDeclineButton.onClick.AddListener(delegate { CancelUpgrade(); });
+
+        shopConfirm.SetActive(true);
+    }
+
+    public void OpenDoor(HealStation station)
+    {
+        if (MainManager.Instance.keys > 0)
+        {
+            station.used = true;
+            MainManager.Instance.keys--;
+            shopConfirm.SetActive(false);
+            player.GetComponent<PlayerAttack>().canAttack = true;
+            player.GetComponent<PlayerMovement>().canMove = true;
+
+            station.door.TriggerDoor();
+        }
+    }
+
     public void CancelUpgrade()
     {
         shopConfirm.SetActive(false);
@@ -545,6 +666,45 @@ public class GameManager : MonoBehaviour
             player.GetComponent<PlayerMovement>().canMove = true;
 
             DisplayObject("Weapon Upgraded", null);
+        }
+    }
+
+    public IEnumerator ObtainHealthPiece()
+    {
+        DisplayHealthPieces();
+        healthPieces.gameObject.SetActive(true);
+
+        yield return new WaitForSeconds(1.25f);
+        MainManager.Instance.hpPieces++;
+
+        if (MainManager.Instance.hpPieces % 3 == 0)
+        {
+            for (int i = 0; i < healthPieces.childCount; i++)
+                healthPieces.GetChild(i).gameObject.GetComponent<Image>().color = Color.white;
+
+            yield return new WaitForSeconds(1.25f);
+
+            player.GetComponent<PlayerHealth>().IncreaseHp();
+            healthPieces.gameObject.SetActive(false);
+        }
+        else
+            DisplayHealthPieces();
+
+        yield return new WaitForSeconds(1.25f);
+        healthPieces.gameObject.SetActive(false);
+    }
+
+
+    public void DisplayHealthPieces()
+    {
+        int r = MainManager.Instance.hpPieces % 3;
+
+        for(int i = 0; i < healthPieces.childCount; i++)
+        {
+            if (r > i)
+                healthPieces.GetChild(i).gameObject.GetComponent<Image>().color = Color.white;
+            else
+                healthPieces.GetChild(i).gameObject.GetComponent<Image>().color = Color.black;
         }
     }
 }

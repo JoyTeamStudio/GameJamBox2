@@ -12,15 +12,19 @@ public class MainManager : MonoBehaviour
 
     public List<Boss> defeatedBosses;
 
+    public int maxSlots;
+
     public bool shopping;
 
     public bool hasDash;
     public bool hasDoubleJump;
+    public bool hasMap;
 
     public bool obtainedFinalItem;
 
     public int money;
     public int hpPieces;
+    public int slots;
     public int minerals;
     public int keys;
     public int weaponLevel;

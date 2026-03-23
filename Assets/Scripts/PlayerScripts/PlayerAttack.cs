@@ -35,7 +35,7 @@ public class PlayerAttack : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButtonDown("Fire1") && cooldownTimer >= cooldown && canAttack)
+        if (Input.GetButtonDown("Fire1") && !FindAnyObjectByType<GameManager>().paused && cooldownTimer >= cooldown && canAttack)
         {
             cooldownTimer = 0;
             GameObject newProj = Instantiate(projectile, transform.position, transform.rotation);

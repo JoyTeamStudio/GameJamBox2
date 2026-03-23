@@ -188,7 +188,7 @@ public class PlayerHealth : MonoBehaviour
         for (int i = health; i < maxHealth; i++)
             Heal();
 
-        transform.position = spawnPoint;
+        transform.position = lastStation.transform.position;
     }
 
     public IEnumerator Flash()
