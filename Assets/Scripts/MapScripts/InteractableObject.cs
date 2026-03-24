@@ -22,7 +22,7 @@ public class InteractableObject : MonoBehaviour
     {
         if (playerIn && Input.GetButtonDown("Vertical"))
         {
-            gameManager.ObtainObject(objectName,  icon);
+            gameManager.ObtainObject(objectName, GetComponent<SpriteRenderer>().sprite);
             gameObject.SetActive(false);
         }
     }

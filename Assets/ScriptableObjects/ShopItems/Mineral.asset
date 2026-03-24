@@ -16,4 +16,4 @@ MonoBehaviour:
   displayName: Mineral
   description: A mysterious mineral of decently high rarity, its uses are unknown.
   icon: {fileID: 21300000, guid: 4ae4a5ab7ddcb704cb951542a5e7f51c, type: 3}
-  price: 300
+  price: 230

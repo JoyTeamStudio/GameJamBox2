@@ -16,5 +16,5 @@ MonoBehaviour:
   displayName: Battery Slot
   description: A small slot that fits inside an Agent's armor. Increases the maximum
     battery capacity.
-  icon: {fileID: 21300000, guid: 4ae4a5ab7ddcb704cb951542a5e7f51c, type: 3}
-  price: 250
+  icon: {fileID: 21300000, guid: 56dd8d35799c6684ea04e1262a2785bd, type: 3}
+  price: 180

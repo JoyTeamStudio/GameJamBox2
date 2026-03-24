@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     public Transform healthPieces;
 
     public Image fade;
+    public Sprite mapIcon;
 
     [Header("Shop Item Details")]
     public TextMeshProUGUI shopItemName;
@@ -492,7 +493,7 @@ public class GameManager : MonoBehaviour
                 upName = "Phase Shifter";
                 upDesc = "Increases your movement options.\nPress C to dash forward.";
 
-                DisplayUpgrade(obtain, upName, upDesc);
+                DisplayUpgrade(obtain, upName, upDesc, dashImage.sprite);
                 break;
             case "doubleJump":
                 player.GetComponent<PlayerMovement>().hasDoubleJump = true;
@@ -502,7 +503,7 @@ public class GameManager : MonoBehaviour
                 upName = "Boot Module";
                 upDesc = "Increases your maximum height.\nPress SPACE in the air to double jump.";
 
-                DisplayUpgrade(obtain, upName, upDesc);
+                DisplayUpgrade(obtain, upName, upDesc, doubleJumpImage.sprite);
                 break;
             case "map":
                 MainManager.Instance.hasMap = true;
@@ -510,7 +511,7 @@ public class GameManager : MonoBehaviour
                 obtain = "Obtained";
                 upName = "Map";
                 upDesc = "A better look at The Outside.\nPress M to open the map and see your location.";
-                DisplayUpgrade(obtain, upName, upDesc);
+                DisplayUpgrade(obtain, upName, upDesc, mapIcon);
                 break;
             case "finalitem":
                 MainManager.Instance.obtainedFinalItem = true;
@@ -521,7 +522,7 @@ public class GameManager : MonoBehaviour
 
                 endBoxDialogue.SetActive(true);
                 finalInteract.SetActive(true);
-                DisplayUpgrade(obtain, upName, upDesc);
+                DisplayUpgrade(obtain, upName, upDesc, finalItemImage.sprite);
                 break;
             case "battery":
                 MainManager.Instance.slots++;
@@ -550,7 +551,7 @@ public class GameManager : MonoBehaviour
     public void DisplayObject(string objName, Sprite image)
     {
         obtainObjectText.text = objName;
-        //obtainObjectImage.sprite = image;
+        obtainObjectImage.sprite = image;
 
         obtainObject.SetActive(true);
 
@@ -563,13 +564,14 @@ public class GameManager : MonoBehaviour
         obtainObject.SetActive(false);
     }
 
-    public void DisplayUpgrade(string obtain, string upName, string upDesc)
+    public void DisplayUpgrade(string obtain, string upName, string upDesc, Sprite image)
     {
         StopPlayer();
 
         obtainText.text = obtain;
         upgradeNameText.text = upName;
         upgradeDescText.text = upDesc;
+        upgradeImage.sprite = image;
 
         StartCoroutine(ShowUpgrade());
     }
@@ -603,7 +605,7 @@ public class GameManager : MonoBehaviour
 
         shopConfirmText.text = "Give Mineral?";
         shopConfirmPrice.text = "1";
-        //shopConfirmIcon.sprite = item.data.icon;
+        shopConfirmIcon.sprite = mineralImage.sprite;
         shopConfirmButton.Select();
 
         shopConfirmButton.onClick.RemoveAllListeners();
@@ -621,7 +623,7 @@ public class GameManager : MonoBehaviour
 
         shopConfirmText.text = "Use Key?";
         shopConfirmPrice.text = "1";
-        //shopConfirmIcon.sprite = item.data.icon;
+        shopConfirmIcon.sprite = keyImage.sprite;
         shopConfirmButton.Select();
 
         shopConfirmButton.onClick.RemoveAllListeners();

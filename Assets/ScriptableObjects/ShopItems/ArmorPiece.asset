@@ -16,5 +16,5 @@ MonoBehaviour:
   displayName: Armour Piece
   description: A lost piece of an armour made of a material unknown to the people
     outside The Box, 3 of these can increase your toughness.
-  icon: {fileID: 21300000, guid: 4ae4a5ab7ddcb704cb951542a5e7f51c, type: 3}
-  price: 400
+  icon: {fileID: 2691076017367635546, guid: f37968f1a187b2e46b05772c30199bbe, type: 3}
+  price: 320
