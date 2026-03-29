@@ -38,18 +38,28 @@ public class PlayerAttack : MonoBehaviour
         if (Input.GetButtonDown("Fire1") && !FindAnyObjectByType<GameManager>().paused && cooldownTimer >= cooldown && canAttack)
         {
             cooldownTimer = 0;
-            GameObject newProj = Instantiate(projectile, transform.position, transform.rotation);
-            newProj.GetComponent<PlayerProjectile>().attack = this;
-
-            if (Input.GetAxisRaw("Vertical") < 0 && !movement.grounded)
-            {
-                newProj.transform.Rotate(0, 0, -90);
-            }
-            else if (Input.GetAxisRaw("Vertical") > 0)
-                newProj.transform.Rotate(0, 0, 90);
+            if (Input.GetAxisRaw("Vertical") > 0)
+                GetComponent<Animator>().Play("ShootUp");
+            else if(Input.GetAxisRaw("Vertical") < 0 && !movement.grounded)
+                GetComponent<Animator>().Play("ShootDown");
+            else
+                GetComponent<Animator>().Play("Shoot");
         }
 
         cooldownTimer += Time.deltaTime;
+    }
+
+    public void Attack()
+    {
+        GameObject newProj = Instantiate(projectile, transform.position, transform.rotation);
+        newProj.GetComponent<PlayerProjectile>().attack = this;
+
+        if (Input.GetAxisRaw("Vertical") < 0 && !movement.grounded)
+        {
+            newProj.transform.Rotate(0, 0, -90);
+        }
+        else if (Input.GetAxisRaw("Vertical") > 0)
+            newProj.transform.Rotate(0, 0, 90);
     }
 
     public void IncreaseHealCount()

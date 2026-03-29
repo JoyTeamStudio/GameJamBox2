@@ -59,6 +59,7 @@ public class GameManager : MonoBehaviour
     public GameObject mapScreen;
     public Transform mapParent;
     public GameObject mapRoom;
+    public Transform playerImage;
 
     private GameObject player;
     public Animator healFactor;
@@ -266,6 +267,14 @@ public class GameManager : MonoBehaviour
                     newRoom.transform.localScale = coll.transform.localScale * 2.5f;
                     newRoom.transform.localPosition = coll.transform.position * 2.5f;
                     newRoom.name = room.gameObject.name;
+
+                    if(room.gameObject.name.Contains("Box"))
+                        newRoom.GetComponent<Image>().color = Color.yellow;
+
+                    if(room.roomCamera.Equals(MainManager.Instance.currentCam))
+                    {
+                        playerImage.transform.position = newRoom.transform.position;
+                    }
                 }
             }
         }
@@ -493,7 +502,7 @@ public class GameManager : MonoBehaviour
                 upName = "Phase Shifter";
                 upDesc = "Increases your movement options.\nPress C to dash forward.";
 
-                DisplayUpgrade(obtain, upName, upDesc, dashImage.sprite);
+                DisplayUpgrade(obtain, upName, upDesc, image);
                 break;
             case "doubleJump":
                 player.GetComponent<PlayerMovement>().hasDoubleJump = true;
@@ -503,7 +512,7 @@ public class GameManager : MonoBehaviour
                 upName = "Boot Module";
                 upDesc = "Increases your maximum height.\nPress SPACE in the air to double jump.";
 
-                DisplayUpgrade(obtain, upName, upDesc, doubleJumpImage.sprite);
+                DisplayUpgrade(obtain, upName, upDesc, image);
                 break;
             case "map":
                 MainManager.Instance.hasMap = true;
@@ -511,7 +520,7 @@ public class GameManager : MonoBehaviour
                 obtain = "Obtained";
                 upName = "Map";
                 upDesc = "A better look at The Outside.\nPress M to open the map and see your location.";
-                DisplayUpgrade(obtain, upName, upDesc, mapIcon);
+                DisplayUpgrade(obtain, upName, upDesc, image);
                 break;
             case "finalitem":
                 MainManager.Instance.obtainedFinalItem = true;
@@ -522,7 +531,7 @@ public class GameManager : MonoBehaviour
 
                 endBoxDialogue.SetActive(true);
                 finalInteract.SetActive(true);
-                DisplayUpgrade(obtain, upName, upDesc, finalItemImage.sprite);
+                DisplayUpgrade(obtain, upName, upDesc, image);
                 break;
             case "battery":
                 MainManager.Instance.slots++;
@@ -708,5 +717,10 @@ public class GameManager : MonoBehaviour
             else
                 healthPieces.GetChild(i).gameObject.GetComponent<Image>().color = Color.black;
         }
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }

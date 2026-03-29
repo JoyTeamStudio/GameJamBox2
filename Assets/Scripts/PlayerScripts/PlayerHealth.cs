@@ -133,6 +133,7 @@ public class PlayerHealth : MonoBehaviour
 
     public void Die()
     {
+        GetComponent<Animator>().Play("Dead");
         StartCoroutine(DieTransition());
     }
 
@@ -189,6 +190,7 @@ public class PlayerHealth : MonoBehaviour
             Heal();
 
         transform.position = lastStation.transform.position;
+        GetComponent<Animator>().Play("Idle");
     }
 
     public IEnumerator Flash()

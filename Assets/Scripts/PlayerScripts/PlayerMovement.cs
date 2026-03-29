@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    private Animator animator;
     private PlayerAttack playerAttack;
     private Rigidbody2D rb;
     private PlayerHealth health;
@@ -36,6 +37,7 @@ public class PlayerMovement : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        animator = GetComponent<Animator>();
         playerAttack = GetComponent<PlayerAttack>();
         rb = GetComponent<Rigidbody2D>();
         health = GetComponent<PlayerHealth>();
@@ -51,10 +53,12 @@ public class PlayerMovement : MonoBehaviour
     {
         //animator.SetBool("isDashing", isDashing);
         if (isDashing) return;
+        animator.SetInteger("y", (int)rb.linearVelocity.y);
 
         if (canMove)
         {
             horizontal = Input.GetAxisRaw("Horizontal");
+            animator.SetBool("isMoving", horizontal != 0);
 
             if (grounded)
                 jumps = 1;
@@ -91,7 +95,11 @@ public class PlayerMovement : MonoBehaviour
         if(isTransitioning)
         {
             if (currentDirection == RoomTransition.Direction.Right || currentDirection == RoomTransition.Direction.Left)
+            {
+                animator.SetBool("isMoving", true);
                 transform.Translate(speed * Time.deltaTime * Vector3.right);
+            }else
+                animator.SetBool("isMoving", false);
         }
     }
 
@@ -169,6 +177,9 @@ public class PlayerMovement : MonoBehaviour
 
     public IEnumerator Heal()
     {
+        animator.Play("Heal");
+        animator.SetBool("isHealing", true);
+
         float gravity = rb.gravityScale;
         playerAttack.canAttack = false;
         canMove = false;
@@ -180,6 +191,7 @@ public class PlayerMovement : MonoBehaviour
         canMove = true;
         health.isHealing = false;
         playerAttack.canAttack = true;
+        animator.SetBool("isHealing", false);
     }
 
     public void Transition()
@@ -219,6 +231,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void StopMovement()
     {
+        animator.SetBool("isMoving", false);
         canMove = false;
         rb.linearVelocity = Vector2.zero;
         GetComponent<PlayerAttack>().canAttack = false;

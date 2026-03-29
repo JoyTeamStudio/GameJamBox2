@@ -84,7 +84,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: 9b753814126637d40bad8738335c38d2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -132,7 +132,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.2, y: 0.2}
+    oldSize: {x: 1, y: 1}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -161,6 +161,7 @@ MonoBehaviour:
   canHeal: 0
   respawning: 0
   spawnPoint: {x: 0, y: 0, z: 0}
+  respawnPoint: {x: 0, y: 0, z: 0}
   flash: {fileID: 2100000, guid: bca2e332b5144684faa9c33d64546574, type: 2}
   transitionFade: {fileID: 0}
 --- !u!114 &8667759533983552282
@@ -175,6 +176,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06b78b1f5f9c9ef42a41183a02a1c1e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
+  defaultAnimation: 
+  animator: {fileID: 0}
   player: {fileID: 0}
   target: {x: 0, y: 0, z: 0}
   projectile: {fileID: 8363231199374056581, guid: a3bf3046e7084ce4f8435a642f0fcaf6, type: 3}
@@ -189,6 +192,13 @@ MonoBehaviour:
   state: 0
   chase: 1
   attack: 1
+  hitPlayer: 0
+  gauntlet: 0
+  wallCollider: {fileID: 0}
+  groundCollider: {fileID: 0}
+  collideWall: 0
+  collideGround: 0
+  checkingCollide: 0
   coins:
   - coinType: {fileID: 5189639088959063723, guid: 8a48f6ddc477c9e409fffd033d2409d9, type: 3}
     amount: 5

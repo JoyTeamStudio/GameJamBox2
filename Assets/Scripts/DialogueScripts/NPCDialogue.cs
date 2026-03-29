@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class NPCDialogue : MonoBehaviour, IDialogue
 {
+    private SpriteRenderer spriteRenderer;
     public string dialogueName;
 
     public DialogueText[] dialogue;
@@ -16,9 +17,11 @@ public class NPCDialogue : MonoBehaviour, IDialogue
     private GameManager gameManager;
 
     public Transform dialogueFocus;
+    public bool flip;
 
     private void Start()
     {
+        spriteRenderer = GetComponent<SpriteRenderer>();
         talkText.SetActive(false);
         player = GameObject.FindWithTag("Player");
         gameManager = FindAnyObjectByType<GameManager>();
@@ -26,6 +29,9 @@ public class NPCDialogue : MonoBehaviour, IDialogue
 
     private void Update()
     {
+        if(flip)
+            spriteRenderer.flipX = player.transform.position.x < transform.position.x;
+
         if (playerIn && Input.GetButtonDown("Vertical"))
         {
             OpenDialogue();
