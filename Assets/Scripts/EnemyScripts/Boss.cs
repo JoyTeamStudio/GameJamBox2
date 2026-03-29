@@ -57,6 +57,7 @@ public class Boss : MonoBehaviour
 
     public void StartBoss(bool triggerDoors)
     {
+        FindAnyObjectByType<GameManager>().StopMusic();
         hasStarted = true;
         hasEnded = false;
         player = GameObject.FindWithTag("Player");
@@ -95,6 +96,7 @@ public class Boss : MonoBehaviour
         animator.Play("Scream");
 
         yield return new WaitForSeconds(3);
+        FindAnyObjectByType<GameManager>().PlayFightMusic();
         movement.StartMovement();
         bossNameText.gameObject.SetActive(false);
 
@@ -158,6 +160,8 @@ public class Boss : MonoBehaviour
 
             foreach (Door d in doors)
                 d.TriggerDoor();
+
+            FindAnyObjectByType<GameManager>().PlayMainMusic();
         }
 
     }

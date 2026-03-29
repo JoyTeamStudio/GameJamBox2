@@ -133,6 +133,7 @@ public class PlayerHealth : MonoBehaviour
 
     public void Die()
     {
+        FindAnyObjectByType<GameManager>().StopMusic();
         GetComponent<Animator>().Play("Dead");
         StartCoroutine(DieTransition());
     }
@@ -189,6 +190,7 @@ public class PlayerHealth : MonoBehaviour
         for (int i = health; i < maxHealth; i++)
             Heal();
 
+        FindAnyObjectByType<GameManager>().PlayMainMusic();
         transform.position = lastStation.transform.position;
         GetComponent<Animator>().Play("Idle");
     }

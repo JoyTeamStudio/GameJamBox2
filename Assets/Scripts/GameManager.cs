@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     public bool endedGame;
 
     public TextMeshProUGUI moneyText;
+    public TextMeshProUGUI bossText;
 
     public GameObject shop;
     public Transform shopItemsParent;
@@ -91,6 +92,10 @@ public class GameManager : MonoBehaviour
     public Image keyImage;
     public Image mineralImage;
 
+    [Header("Music")]
+    public AudioSource music;
+    public AudioClip mainMusic;
+    public AudioClip fightMusic;
 
     private void Start()
     {
@@ -112,6 +117,30 @@ public class GameManager : MonoBehaviour
         {
             CloseShop(false);
         }
+
+        if(mapScreen.activeSelf)
+        {
+            playerImage.transform.localPosition = player.transform.position * 2.5f;
+        }
+    }
+
+    public void StopMusic()
+    {
+        music.Stop();
+    }
+
+    public void PlayFightMusic()
+    {
+        music.Stop();
+        music.clip = fightMusic;
+        music.Play();
+    }
+
+    public void PlayMainMusic()
+    {
+        music.Stop();
+        music.clip = mainMusic;
+        music.Play();
     }
 
     public void TogglePause()
@@ -211,6 +240,13 @@ public class GameManager : MonoBehaviour
         startDoor.TriggerDoor();
         yield return new WaitForSeconds(1);
         StartPlayer();
+
+        yield return new WaitForSeconds(2);
+        PlayMainMusic();
+        bossText.text = "The Outside";
+        bossText.gameObject.SetActive(true);
+        yield return new WaitForSeconds(2.5f);
+        bossText.gameObject.SetActive(false);
     }
 
     private IEnumerator EnterBox()
@@ -252,11 +288,13 @@ public class GameManager : MonoBehaviour
     {
         if(!mapScreen.activeSelf)
         {
-            foreach(Transform t in mapParent)
+            playerImage.transform.localPosition = player.transform.position * 2.5f;
+
+            foreach (Transform t in mapParent)
                 Destroy(t.gameObject);
 
             RoomManager[] rooms = FindObjectsByType<RoomManager>(FindObjectsSortMode.None);
-
+            List<RoomTransition> existingTrans = new List<RoomTransition>();
             foreach(RoomManager room in rooms)
             {
                 if(room.visited)
@@ -270,10 +308,35 @@ public class GameManager : MonoBehaviour
 
                     if(room.gameObject.name.Contains("Box"))
                         newRoom.GetComponent<Image>().color = Color.yellow;
+                                     
+                    RoomTransition[] transitions = room.gameObject.GetComponentsInChildren<RoomTransition>();
 
-                    if(room.roomCamera.Equals(MainManager.Instance.currentCam))
+                    foreach(RoomTransition t in transitions)
                     {
-                        playerImage.transform.position = newRoom.transform.position;
+                        if (!existingTrans.Contains(t.room.gameObject.GetComponent<RoomTransition>()))
+                        {
+                            RoomTransition.Direction direction = t.direction;
+
+                            float xScale = 0, yScale = 0;
+
+                            if (t.direction == RoomTransition.Direction.Right || t.direction == RoomTransition.Direction.Left)
+                            {
+                                yScale = t.transform.localScale.y + 1;
+                                xScale = Mathf.Abs(t.transform.position.x - t.room.gameObject.transform.position.x) + 10;
+                            }
+
+                            if (t.direction == RoomTransition.Direction.Up || t.direction == RoomTransition.Direction.Down)
+                            {
+                                xScale = t.transform.localScale.x + 1;
+                                yScale = Mathf.Abs(t.transform.position.y - t.room.gameObject.transform.position.y) + 10;
+                            }
+
+                            GameObject newTrans = Instantiate(mapRoom, transform.position, transform.rotation);
+                            newTrans.transform.SetParent(mapParent, false);
+                            newTrans.transform.localScale = new Vector3(xScale, yScale, 1) * 2.5f;
+                            newTrans.transform.localPosition = ((t.transform.position + t.room.gameObject.transform.position) / 2) * 2.5f;
+                            existingTrans.Add(t);
+                        }
                     }
                 }
             }

@@ -17,6 +17,7 @@ public class GauntletManager : MonoBehaviour
 
     public void StartGauntlet()
     {
+        FindAnyObjectByType<GameManager>().PlayFightMusic();
         spawning = false;
         hasStarted = true;
         currentWave = 0;
@@ -39,6 +40,7 @@ public class GauntletManager : MonoBehaviour
 
     public void EndGauntlet()
     {
+        FindAnyObjectByType<GameManager>().PlayMainMusic();
         hasFinished = true;
 
         foreach (Door d in doors)
