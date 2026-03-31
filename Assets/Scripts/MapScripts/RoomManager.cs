@@ -18,7 +18,19 @@ public class RoomManager : MonoBehaviour
     {
         camCollider = roomCamera.GetComponent<CinemachineConfiner2D>().BoundingShape2D.gameObject;
 
-        if(startRoom)
+        for (int i = 0; i < MainManager.Instance.rooms.Length; i++)
+        {
+            if (name.ToLower() == MainManager.Instance.rooms[i].roomName.ToLower())
+            {
+                if(visited)
+                    MainManager.Instance.rooms[i].visited = true;
+                else
+                    visited = MainManager.Instance.rooms[i].visited;
+                break;
+            }
+        }
+
+        if (startRoom)
             EnterRoom();
     }
 
@@ -43,6 +55,12 @@ public class RoomManager : MonoBehaviour
         roomCamera.SetActive(true);
         enemies.gameObject.SetActive(true);
 
+        if(!MainManager.Instance.learnedInteract && name.Contains("FirstBoss"))
+        {
+            FindAnyObjectByType<GameManager>().ShowTip("Press W or Up to interact");
+            MainManager.Instance.learnedInteract = true;
+        }
+
         foreach(Transform t in enemies)
         {
             if(!visitedSinceLastHeal)
@@ -53,5 +71,14 @@ public class RoomManager : MonoBehaviour
 
         visitedSinceLastHeal = true;
         visited = true;
+
+        for (int i = 0; i < MainManager.Instance.rooms.Length; i++)
+        {
+            if (name.ToLower() == MainManager.Instance.rooms[i].roomName.ToLower())
+            {
+                MainManager.Instance.rooms[i].visited = true;
+                break;
+            }
+        }
     }
 }

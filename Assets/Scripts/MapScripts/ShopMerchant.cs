@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Linq;
 
 public class ShopMerchant : MonoBehaviour
 {
@@ -20,6 +21,8 @@ public class ShopMerchant : MonoBehaviour
         shopText.SetActive(false);
         player = GameObject.FindWithTag("Player");
         gameManager = FindAnyObjectByType<GameManager>();
+
+        boughtItems = MainManager.Instance.boughtShopItems.OfType<int>().ToList();
     }
 
     private void Update()

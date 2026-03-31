@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class HealStation : MonoBehaviour
 {
+    public string stationName;
     public bool playerIn;
     private PlayerHealth health;
     public GameObject recoverText;
@@ -14,7 +15,21 @@ public class HealStation : MonoBehaviour
 
     private void Start()
     {
-        used = false;
+        for (int i = 0; i < MainManager.Instance.stations.Length; i++)
+        {
+            if (stationName.ToLower() == MainManager.Instance.stations[i].stationName.ToLower())
+            {
+                used = MainManager.Instance.stations[i].used;
+                break;
+            }
+        }
+
+        if(used && type == StationType.Key)
+        {
+            door.gameObject.transform.position = door.transform.position - new Vector3(0, door.distance, 0);
+            door.speed = -door.speed;
+        }
+
         recoverText.SetActive(false);
     }
 
@@ -54,6 +69,10 @@ public class HealStation : MonoBehaviour
 
     public void Heal()
     {
+        MainManager.Instance.currentStation = stationName;
+        MainManager.Instance.SavePlayer();
+        GetComponent<AudioSource>().Play();
+
         StartCoroutine(HealPlayer());
 
         FindAnyObjectByType<GameManager>().Heal();

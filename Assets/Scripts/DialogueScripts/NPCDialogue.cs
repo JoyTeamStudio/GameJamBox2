@@ -25,6 +25,20 @@ public class NPCDialogue : MonoBehaviour, IDialogue
         talkText.SetActive(false);
         player = GameObject.FindWithTag("Player");
         gameManager = FindAnyObjectByType<GameManager>();
+
+        GetDialogueIndex();
+    }
+
+    private void GetDialogueIndex()
+    {
+        for(int i = 0; i < MainManager.Instance.npcData.Length; i++)
+        {
+            if(dialogueName.ToLower() == MainManager.Instance.npcData[i].npcName.ToLower())
+            {
+                dialogueIndex = MainManager.Instance.npcData[i].dialogueIndex;
+                break;
+            }    
+        }
     }
 
     private void Update()
@@ -93,7 +107,7 @@ public class NPCDialogue : MonoBehaviour, IDialogue
                     dialogueIndex = 4;
 
                 break;
-            case "littlehermit":
+            case "littlehermit1" or "littlehermit2":
                 if(dialogueIndex == 0)
                     dialogueIndex = 1;
                 break;
@@ -105,6 +119,8 @@ public class NPCDialogue : MonoBehaviour, IDialogue
                 }
                 break;
         }
+
+        UpdateDialogueIndex();
     }
 
     public void OnShopEnd()
@@ -119,6 +135,8 @@ public class NPCDialogue : MonoBehaviour, IDialogue
                 }
                 break;
         }
+
+        UpdateDialogueIndex();
     }
 
     public void OnEmptyShop()
@@ -129,6 +147,20 @@ public class NPCDialogue : MonoBehaviour, IDialogue
                 dialogueIndex = 3;
                 OpenDialogue();
                 break;
+        }
+
+        UpdateDialogueIndex();
+    }
+
+    private void UpdateDialogueIndex()
+    {
+        for (int i = 0; i < MainManager.Instance.npcData.Length; i++)
+        {
+            if (dialogueName.ToLower() == MainManager.Instance.npcData[i].npcName.ToLower())
+            {
+                MainManager.Instance.npcData[i].dialogueIndex = dialogueIndex;
+                break;
+            }
         }
     }
 }

@@ -64,6 +64,7 @@ public class FirstBoss : MonoBehaviour
         {
             bossManager.animator.Play("Throw");
             yield return new WaitForSeconds(throwTime);
+            GetComponent<AudioSource>().Play();
             GameObject newProj = Instantiate(throwProjectile, transform.position, transform.rotation);
             newProj.GetComponent<Rigidbody2D>().AddForce(new Vector2(Vector3.Distance(transform.position, bossManager.player.transform.position) * 0.8f * GetSideMult(), 25), ForceMode2D.Impulse);
             yield return new WaitForSeconds(0.2f);
@@ -89,6 +90,7 @@ public class FirstBoss : MonoBehaviour
         {
             bossManager.animator.Play("Shoot");
             yield return new WaitForSeconds(shootTime);
+            GetComponent<AudioSource>().Play();
             GameObject newProj = Instantiate(shootProjectile, transform.position, transform.rotation);
             newProj.transform.Translate(new Vector3(0, -0.75f, 0));
             yield return new WaitForSeconds(0.2f);

@@ -47,6 +47,9 @@ public class PlayerMovement : MonoBehaviour
         isFacingRight = true;
         canDash = true;
         canMove = true;
+
+        hasDash = MainManager.Instance.hasDash;
+        hasDoubleJump = MainManager.Instance.hasDoubleJump;
     }
 
     private void Update()

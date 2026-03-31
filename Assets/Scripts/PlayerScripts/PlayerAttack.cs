@@ -26,7 +26,7 @@ public class PlayerAttack : MonoBehaviour
 
         currentHeal = 0;
 
-        for (int i = 0; i < heal; i++)
+        for (int i = 0; i < heal + MainManager.Instance.slots; i++)
             CreateHealIcon(i);
 
         canAttack = true;
@@ -51,6 +51,7 @@ public class PlayerAttack : MonoBehaviour
 
     public void Attack()
     {
+        GetComponent<AudioSource>().Play();
         GameObject newProj = Instantiate(projectile, transform.position, transform.rotation);
         newProj.GetComponent<PlayerProjectile>().attack = this;
 
@@ -66,6 +67,12 @@ public class PlayerAttack : MonoBehaviour
     {
         currentHeal++;
         currentHeal = Mathf.Clamp(currentHeal, 0, heal);
+
+        if (!MainManager.Instance.learnedHealing && currentHeal >= 4 && GetComponent<PlayerHealth>().health < GetComponent<PlayerHealth>().maxHealth)
+        {
+            FindAnyObjectByType<GameManager>().ShowTip("Press E or RMB to heal");
+            MainManager.Instance.learnedHealing = true;
+        }
 
         UpdateHealIcons();
     }

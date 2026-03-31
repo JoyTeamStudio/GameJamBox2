@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Boss : MonoBehaviour
 {
+    public AudioSource screech;
     public PlayerHealth health;
     public bool hasStarted;
     public bool hasEnded;
@@ -31,6 +32,25 @@ public class Boss : MonoBehaviour
     private void Start()
     {
         animator = GetComponent<Animator>();
+
+        for (int i = 0; i < MainManager.Instance.gauntletBossData.Length; i++)
+        {
+            if (bossDisplayName.ToLower() == MainManager.Instance.gauntletBossData[i].gaunletName.ToLower())
+            {
+                hasEnded = MainManager.Instance.gauntletBossData[i].finished;
+                hasStarted = hasEnded;
+                break;
+            }
+        }
+
+        if(hasEnded)
+        {
+            GetComponent<Collider2D>().enabled = false;
+            rb.gravityScale = 0;
+            rb.linearVelocity = Vector2.zero;
+            Instantiate(deadCorpse, transform.position, transform.rotation);
+            GetComponent<SpriteRenderer>().enabled = false;
+        }
     }
 
     public void ResetBoss()
@@ -94,6 +114,7 @@ public class Boss : MonoBehaviour
         bossNameText.gameObject.SetActive(true);
 
         animator.Play("Scream");
+        screech.Play();
 
         yield return new WaitForSeconds(3);
         FindAnyObjectByType<GameManager>().PlayFightMusic();
@@ -125,6 +146,15 @@ public class Boss : MonoBehaviour
 
     private IEnumerator EndFightCoroutine()
     {
+        for (int i = 0; i < MainManager.Instance.gauntletBossData.Length; i++)
+        {
+            if (bossDisplayName.ToLower() == MainManager.Instance.gauntletBossData[i].gaunletName.ToLower())
+            {
+                MainManager.Instance.gauntletBossData[i].finished = true;
+                break;
+            }
+        }
+
         hasEnded = true;
         MainManager.Instance.AddBoss(this);
         ((MonoBehaviour)GetComponent(bossName)).StopAllCoroutines();

@@ -22,16 +22,21 @@ public class Door : MonoBehaviour
 
             if (Vector3.Distance(transform.position, target) < 0.5f)
             {
-                transform.position = target;
-                moving = false;
-                speed = -speed;
-
-                if (target == initialPos)
-                    target = new Vector3(transform.position.x, transform.position.y - distance, transform.position.z);
-                else
-                    target = initialPos;
+                EndMovement();
             }
         }
+    }
+
+    public void EndMovement()
+    {
+        transform.position = target;
+        moving = false;
+        speed = -speed;
+
+        if (target == initialPos)
+            target = new Vector3(transform.position.x, transform.position.y - distance, transform.position.z);
+        else
+            target = initialPos;
     }
 
     public void TriggerDoor()

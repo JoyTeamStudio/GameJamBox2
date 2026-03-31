@@ -105,4 +105,6 @@ public class Enemy : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         checkingCollide = true;
     }
+
+
 }

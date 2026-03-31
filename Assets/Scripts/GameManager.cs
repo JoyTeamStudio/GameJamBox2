@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -22,6 +23,8 @@ public class GameManager : MonoBehaviour
     public Image fade;
     public Sprite mapIcon;
 
+    public GameObject finalItem;
+
     [Header("Shop Item Details")]
     public TextMeshProUGUI shopItemName;
     public TextMeshProUGUI shopItemDescription;
@@ -33,6 +36,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI shopConfirmText;
     public TextMeshProUGUI shopConfirmPrice;
     public Image shopConfirmIcon;
+    public Image shopConfirmPriceIcon;
     public Button shopConfirmButton;
     public Button shopDeclineButton;
 
@@ -55,12 +59,14 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI upgradeNameText;
     public TextMeshProUGUI upgradeDescText;
     public Image upgradeImage;
+    public Sprite upgradeIcon;
 
     [Header("Map")]
     public GameObject mapScreen;
     public Transform mapParent;
     public GameObject mapRoom;
     public Transform playerImage;
+    public Transform objectiveImage;
 
     private GameObject player;
     public Animator healFactor;
@@ -78,6 +84,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI finalText;
     public DialogueText startText;
     public DialogueText endText;
+    public TextMeshProUGUI tipText;
 
     private float timeBeforePause;
     [Header("Pause Menu")]
@@ -99,10 +106,18 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        MainManager.Instance.LoadPlayer();
+
         player = GameObject.FindWithTag("Player");
         moneyText.text = MainManager.Instance.money.ToString();
 
-        StartGame();
+        startedGame = MainManager.Instance.hasStarted;
+        if(!startedGame)
+            StartGame();
+        else
+        {
+            SetLoadedContent();
+        }
     }
 
     private void Update()
@@ -122,6 +137,41 @@ public class GameManager : MonoBehaviour
         {
             playerImage.transform.localPosition = player.transform.position * 2.5f;
         }
+    }
+
+    public void SetLoadedContent()
+    {
+        FillPauseMenu();
+
+        endBoxDialogue.SetActive(MainManager.Instance.obtainedFinalItem);
+        finalInteract.SetActive(MainManager.Instance.obtainedFinalItem);
+
+        HealStation[] stations = FindObjectsByType<HealStation>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for(int i = 0; i < stations.Length; i++)
+        {
+            if(stations[i].stationName.ToLower() == MainManager.Instance.currentStation)
+            {
+                player.GetComponent<PlayerHealth>().lastStation = stations[i].gameObject;
+                break;
+            }
+        }
+
+        player.transform.position = player.GetComponent<PlayerHealth>().lastStation.transform.position;
+        RoomManager currentRoom = player.GetComponent<PlayerHealth>().lastStation.GetComponentInParent<RoomManager>();
+
+        if(currentRoom != MainManager.Instance.currentRoom)
+            MainManager.Instance.currentRoom.LeaveRoom();
+
+        currentRoom.EnterRoom();
+        startDoor.EndMovement();
+        PlayMainMusic();
+    }
+
+    public void OpenScene(string sceneName)
+    {
+        Time.timeScale = 1;
+        MainManager.Instance.SavePlayer();
+        SceneManager.LoadScene(sceneName);
     }
 
     public void StopMusic()
@@ -157,48 +207,66 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 0;
             Cursor.lockState = CursorLockMode.None;
 
-            int extraHearts = MainManager.Instance.hpPieces / 3;
-            int count = 0;
-            for(int i = 0; i < armors.childCount; i++)
-            {
-                for (int j = 0; j < armors.GetChild(i).childCount; j++)
-                {
-                    if(MainManager.Instance.hpPieces > count)
-                        armors.GetChild(i).GetChild(j).gameObject.GetComponent<Image>().color = Color.white;
-                    else
-                        armors.GetChild(i).GetChild(j).gameObject.GetComponent<Image>().color = Color.black;
-                
-                    count++;
-                }
-
-                if (extraHearts > i)
-                    armors.GetChild(i).gameObject.GetComponent<Image>().color = Color.white;
-                else
-                    armors.GetChild(i).gameObject.GetComponent<Image>().color = Color.black;
-            }
-
-            for (int i = 0; i < slots.childCount; i++)
-            {
-                if (MainManager.Instance.slots > i)
-                    slots.GetChild(i).gameObject.GetComponent<Image>().color = Color.white;
-                else
-                    slots.GetChild(i).gameObject.GetComponent<Image>().color = Color.black;
-            }
-
-            dashImage.gameObject.SetActive(MainManager.Instance.hasDash);
-            doubleJumpImage.gameObject.SetActive(MainManager.Instance.hasDoubleJump);
-            finalItemImage.gameObject.SetActive(MainManager.Instance.obtainedFinalItem);
-
-            keyImage.gameObject.SetActive(MainManager.Instance.keys > 0);
-            mineralImage.gameObject.SetActive(MainManager.Instance.minerals > 0);
-            keyImage.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = MainManager.Instance.keys.ToString();
-            mineralImage.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = MainManager.Instance.minerals.ToString();
+            FillPauseMenu();
         }
         else
         {
             Time.timeScale = timeBeforePause;
             Cursor.lockState = CursorLockMode.Locked;
         }
+    }
+
+    private void FillPauseMenu()
+    {
+        FillArmors();
+        FillSlots();
+        FillImages();
+    }
+
+    private void FillArmors()
+    {
+        int extraHearts = MainManager.Instance.hpPieces / 3;
+        int count = 0;
+        for (int i = 0; i < armors.childCount; i++)
+        {
+            for (int j = 0; j < armors.GetChild(i).childCount; j++)
+            {
+                if (MainManager.Instance.hpPieces > count)
+                    armors.GetChild(i).GetChild(j).gameObject.GetComponent<Image>().color = Color.white;
+                else
+                    armors.GetChild(i).GetChild(j).gameObject.GetComponent<Image>().color = Color.black;
+
+                count++;
+            }
+
+            if (extraHearts > i)
+                armors.GetChild(i).gameObject.GetComponent<Image>().color = Color.white;
+            else
+                armors.GetChild(i).gameObject.GetComponent<Image>().color = Color.black;
+        }
+    }
+
+    private void FillSlots()
+    {
+        for (int i = 0; i < slots.childCount; i++)
+        {
+            if (MainManager.Instance.slots > i)
+                slots.GetChild(i).gameObject.GetComponent<Image>().color = Color.white;
+            else
+                slots.GetChild(i).gameObject.GetComponent<Image>().color = Color.black;
+        }
+    }
+
+    private void FillImages()
+    {
+        dashImage.gameObject.SetActive(MainManager.Instance.hasDash);
+        doubleJumpImage.gameObject.SetActive(MainManager.Instance.hasDoubleJump);
+        finalItemImage.gameObject.SetActive(MainManager.Instance.obtainedFinalItem);
+
+        keyImage.gameObject.SetActive(MainManager.Instance.keys > 0);
+        mineralImage.gameObject.SetActive(MainManager.Instance.minerals > 0);
+        keyImage.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = MainManager.Instance.keys.ToString();
+        mineralImage.gameObject.GetComponentInChildren<TextMeshProUGUI>().text = MainManager.Instance.minerals.ToString();
     }
 
     private void StartGame()
@@ -232,6 +300,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(0.75f);
 
         startedGame = true;
+        MainManager.Instance.hasStarted = true;
         player.GetComponent<PlayerMovement>().StartTransition(RoomTransition.Direction.Right);
         yield return new WaitForSeconds(1);
         player.GetComponent<PlayerMovement>().EndTransition();
@@ -247,10 +316,27 @@ public class GameManager : MonoBehaviour
         bossText.gameObject.SetActive(true);
         yield return new WaitForSeconds(2.5f);
         bossText.gameObject.SetActive(false);
+
+        yield return new WaitForSeconds(2);
+        ShowTip("Press Z or LMB to attack");
+    }
+
+    public void ShowTip(string text)
+    {
+        StartCoroutine(Tip(text));
+    }
+
+    private IEnumerator Tip(string text)
+    {
+        tipText.text = text;
+        tipText.gameObject.SetActive(true);
+        yield return new WaitForSeconds(3);
+        tipText.gameObject.SetActive(false);
     }
 
     private IEnumerator EnterBox()
     {
+        MainManager.Instance.SavePlayer();
         endedGame = true;
         player.transform.eulerAngles = new Vector3(0, 180, 0);
         StopPlayer();
@@ -289,6 +375,11 @@ public class GameManager : MonoBehaviour
         if(!mapScreen.activeSelf)
         {
             playerImage.transform.localPosition = player.transform.position * 2.5f;
+
+            if (MainManager.Instance.obtainedFinalItem)
+                objectiveImage.transform.localPosition = finalInteract.transform.position * 2.5f;
+            else
+                objectiveImage.transform.localPosition = finalItem.transform.position * 2.5f;
 
             foreach (Transform t in mapParent)
                 Destroy(t.gameObject);
@@ -400,6 +491,7 @@ public class GameManager : MonoBehaviour
         shopConfirmText.text = "Buy " + item.data.displayName + "?";
         shopConfirmPrice.text = item.data.price.ToString();
         shopConfirmIcon.sprite = item.data.icon;
+        shopConfirmPriceIcon.gameObject.SetActive(true);
         shopConfirmButton.Select();
 
         shopConfirmButton.onClick.RemoveAllListeners();
@@ -439,6 +531,7 @@ public class GameManager : MonoBehaviour
         GetMoney(-data.price);
 
         item.merchant.boughtItems.Add(item.itemIndex);
+        MainManager.Instance.boughtShopItems = item.merchant.boughtItems.ToArray();
 
         ObtainObject(data.itemName, data.icon);
 
@@ -447,6 +540,9 @@ public class GameManager : MonoBehaviour
 
     public void GetMoney(int amount)
     {
+        if (amount > 0)
+            GameObject.Find("CoinSound").GetComponent<AudioSource>().Play();
+
         MainManager.Instance.money += amount;
         moneyText.text = MainManager.Instance.money.ToString();
     }
@@ -513,6 +609,17 @@ public class GameManager : MonoBehaviour
         {
             StartCoroutine(StartGameCoroutine());
         }
+
+        if(endedGame)
+        {
+            StartCoroutine(OpenCredits());
+        }
+    }
+
+    private IEnumerator OpenCredits()
+    {
+        yield return new WaitForSeconds(3);
+        OpenScene("Credits");
     }
 
     private IEnumerator TypeDialogueText(string line, TextMeshProUGUI text, bool automatic)
@@ -554,6 +661,7 @@ public class GameManager : MonoBehaviour
     public void ObtainObject(string objName, Sprite image)
     {
         string obtain, upName, upDesc;
+        GetComponent<AudioSource>().Play();
 
         switch(objName)
         {
@@ -618,6 +726,8 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(EnterBox());
                 break;
         }
+
+        MainManager.Instance.SavePlayer();
     }
 
     public void DisplayObject(string objName, Sprite image)
@@ -678,6 +788,7 @@ public class GameManager : MonoBehaviour
         shopConfirmText.text = "Give Mineral?";
         shopConfirmPrice.text = "1";
         shopConfirmIcon.sprite = mineralImage.sprite;
+        shopConfirmPriceIcon.gameObject.SetActive(false);
         shopConfirmButton.Select();
 
         shopConfirmButton.onClick.RemoveAllListeners();
@@ -696,6 +807,7 @@ public class GameManager : MonoBehaviour
         shopConfirmText.text = "Use Key?";
         shopConfirmPrice.text = "1";
         shopConfirmIcon.sprite = keyImage.sprite;
+        shopConfirmPriceIcon.gameObject.SetActive(false);
         shopConfirmButton.Select();
 
         shopConfirmButton.onClick.RemoveAllListeners();
@@ -705,6 +817,19 @@ public class GameManager : MonoBehaviour
         shopDeclineButton.onClick.AddListener(delegate { CancelUpgrade(); });
 
         shopConfirm.SetActive(true);
+    }
+
+    public void SaveStation(HealStation station)
+    {
+        for(int i = 0; i < MainManager.Instance.stations.Length; i++)
+        {
+            if(station.stationName.ToLower() == MainManager.Instance.stations[i].stationName.ToLower())
+            {
+                MainManager.Instance.stations[i].used = station.used;
+            }
+        }
+
+        MainManager.Instance.SavePlayer();
     }
 
     public void OpenDoor(HealStation station)
@@ -718,6 +843,7 @@ public class GameManager : MonoBehaviour
             player.GetComponent<PlayerMovement>().canMove = true;
 
             station.door.TriggerDoor();
+            SaveStation(station);
         }
     }
 
@@ -739,7 +865,8 @@ public class GameManager : MonoBehaviour
             player.GetComponent<PlayerAttack>().canAttack = true;
             player.GetComponent<PlayerMovement>().canMove = true;
 
-            DisplayObject("Weapon Upgraded", null);
+            DisplayObject("Weapon Upgraded", upgradeIcon);
+            SaveStation(station);
         }
     }
 

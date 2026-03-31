@@ -4,13 +4,28 @@ using static UnityEngine.UI.Image;
 
 public class BreakableWall : MonoBehaviour
 {
+    public string wallName;
     public int hits;
     public GameObject wall;
     public Material flash;
 
+    private void Start()
+    {
+        for (int i = 0; i < MainManager.Instance.walls.Length; i++)
+        {
+            if (wallName.ToLower() == MainManager.Instance.walls[i].wallName.ToLower())
+            {
+                wall.SetActive(!MainManager.Instance.walls[i].broken);
+                gameObject.SetActive(!MainManager.Instance.walls[i].broken);
+                break;
+            }
+        }
+    }
+
     public void BreakWall()
     {
         hits--;
+        GetComponent<AudioSource>().Play();
 
         StartCoroutine(Flash());
 
@@ -18,6 +33,17 @@ public class BreakableWall : MonoBehaviour
         {
             wall.SetActive(false);
             gameObject.SetActive(false);
+
+            for (int i = 0; i < MainManager.Instance.walls.Length; i++)
+            {
+                if (wallName.ToLower() == MainManager.Instance.walls[i].wallName.ToLower())
+                {
+                    MainManager.Instance.walls[i].broken = true;
+                    break;
+                }
+            }
+
+            MainManager.Instance.SavePlayer();
         }
     }
 

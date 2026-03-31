@@ -6,6 +6,7 @@ using static UnityEngine.UI.Image;
 
 public class PlayerHealth : MonoBehaviour
 {
+    public AudioSource hit;
     public int maxHealth;
     public int health;
     public Transform healthParent;
@@ -46,13 +47,13 @@ public class PlayerHealth : MonoBehaviour
         {
             playerAttack = GetComponent<PlayerAttack>();
             playerMovement = GetComponent<PlayerMovement>();
+            int extraHearts = MainManager.Instance.hpPieces / 3;
 
-            for (int i = 0; i < health; i++)
+            for (int i = 0; i < health + extraHearts; i++)
             {
                 GameObject newIcon = Instantiate(healthIcon, healthParent.transform.position, healthIcon.transform.rotation);
                 newIcon.transform.SetParent(healthParent.transform, false);
             }
-
         }
     }
 
@@ -79,6 +80,8 @@ public class PlayerHealth : MonoBehaviour
         {
             health -= damage;
 
+            HitSound();
+
             if (health <= 0)
             {
                 if (gameObject.CompareTag("Enemy"))
@@ -97,6 +100,12 @@ public class PlayerHealth : MonoBehaviour
 
             if (gameObject.CompareTag("Player"))
             {
+                if(!MainManager.Instance.learnedHealing && playerAttack.currentHeal >= 4)
+                {
+                    FindAnyObjectByType<GameManager>().ShowTip("Press E or RMB to heal");
+                    MainManager.Instance.learnedHealing = true;
+                }
+
                 healthParent.GetChild(health).GetComponent<Image>().color = Color.black;
                 if(health > 0)
                     StartCoroutine(Immunity());
@@ -229,5 +238,10 @@ public class PlayerHealth : MonoBehaviour
             transform.position = respawnPoint;
             GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
         }
+    }
+
+    public void HitSound()
+    {
+        hit.Play();
     }
 }

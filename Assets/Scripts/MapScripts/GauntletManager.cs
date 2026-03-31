@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GauntletManager : MonoBehaviour
 {
+    public string gauntletName;
     public bool hasStarted;
     public bool hasFinished;
     private bool spawning;
@@ -14,6 +15,19 @@ public class GauntletManager : MonoBehaviour
     public Door[] doors;
     public GameObject particles;
     public Transform particlesY;
+
+    private void Start()
+    {
+        for (int i = 0; i < MainManager.Instance.gauntletBossData.Length; i++)
+        {
+            if (gauntletName.ToLower() == MainManager.Instance.gauntletBossData[i].gaunletName.ToLower())
+            {
+                hasFinished = MainManager.Instance.gauntletBossData[i].finished;
+                hasStarted = hasFinished;
+                break;
+            }
+        }
+    }
 
     public void StartGauntlet()
     {
@@ -42,6 +56,15 @@ public class GauntletManager : MonoBehaviour
     {
         FindAnyObjectByType<GameManager>().PlayMainMusic();
         hasFinished = true;
+
+        for(int i = 0; i < MainManager.Instance.gauntletBossData.Length; i++)
+        {
+            if(gauntletName.ToLower() == MainManager.Instance.gauntletBossData[i].gaunletName.ToLower())
+            {
+                MainManager.Instance.gauntletBossData[i].finished = true;
+                break;
+            }
+        }
 
         foreach (Door d in doors)
             d.TriggerDoor();
