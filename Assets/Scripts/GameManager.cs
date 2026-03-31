@@ -337,6 +337,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator EnterBox()
     {
         MainManager.Instance.SavePlayer();
+        StopMusic();
         endedGame = true;
         player.transform.eulerAngles = new Vector3(0, 180, 0);
         StopPlayer();
